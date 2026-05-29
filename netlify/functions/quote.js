@@ -1,7 +1,12 @@
-import yahooFinance from 'yahoo-finance2';
+// 1. Trampa para engañar al escáner de Netlify y que empaquete la librería
+try { require('yahoo-finance2'); } catch(e) {}
 
-export const handler = async function(event, context) {
+// 2. Nuestro código real a prueba de fallos
+exports.handler = async function(event, context) {
     try {
+        // Cargar la librería dinámicamente de forma segura
+        const yahooFinance = (await import('yahoo-finance2')).default;
+        
         const symbolsParam = event.queryStringParameters.symbols;
         
         if (!symbolsParam) {
@@ -9,21 +14,20 @@ export const handler = async function(event, context) {
                 statusCode: 400,
                 headers: {
                     'Content-Type': 'application/json',
-                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Origin': '*'
                 },
                 body: JSON.stringify({ error: 'Falta el parámetro symbols' })
             };
         }
 
         const symbolsArray = symbolsParam.split(',');
-        
         const quotes = await yahooFinance.quote(symbolsArray);
         
         return {
             statusCode: 200,
             headers: {
                 'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Origin': '*'
             },
             body: JSON.stringify({
                 quoteResponse: {
@@ -32,14 +36,14 @@ export const handler = async function(event, context) {
             })
         };
     } catch (error) {
-        console.error("Error consultando Yahoo Finance:", error);
+        console.error("Error:", error);
         return {
             statusCode: 500,
             headers: {
                 'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Origin': '*'
             },
-            body: JSON.stringify({ error: 'Error interno obteniendo los datos' })
+            body: JSON.stringify({ error: 'Error interno' })
         };
     }
 };
