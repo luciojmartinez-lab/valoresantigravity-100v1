@@ -4,8 +4,9 @@ try { require('yahoo-finance2'); } catch(e) {}
 // 2. Nuestro código real a prueba de fallos
 exports.handler = async function(event, context) {
     try {
-        // Cargar la librería dinámicamente de forma segura
-        const yahooFinance = (await import('yahoo-finance2')).default;
+        // Cargar la librería dinámicamente y sacar el objeto correcto (esté donde esté)
+        const modulo = await import('yahoo-finance2');
+        const yahooFinance = modulo.default || modulo;
         
         const symbolsParam = event.queryStringParameters.symbols;
         
