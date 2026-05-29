@@ -1,8 +1,7 @@
-exports.handler = async function(event, context) {
+import yahooFinance from 'yahoo-finance2';
+
+export const handler = async function(event, context) {
     try {
-        // Truco definitivo: Cargar la librería ESM dinámicamente dentro de CommonJS
-        const yahooFinance = (await import('yahoo-finance2')).default;
-        
         const symbolsParam = event.queryStringParameters.symbols;
         
         if (!symbolsParam) {
