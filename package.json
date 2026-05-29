@@ -1,0 +1,9 @@
+{
+  "name": "consulta-de-valores",
+  "version": "1.0.0",
+  "description": "App para consulta de valores usando Netlify Functions",
+  "main": "index.html",
+  "dependencies": {
+    "yahoo-finance2": "^2.11.3"
+  }
+}

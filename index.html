@@ -1,0 +1,1141 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consulta de Valores por Lucio J, Martinez 100v13</title>
+    <!-- Chart.js para los gráficos interactivos -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        :root {
+            --primary-blue: #1976d2; 
+            --primary-hover: #1565c0;
+            --bg-main: #f1f5f9;      
+            --bg-card: #ffffff;
+            --text-dark: #1e293b;
+            --text-muted: #64748b;
+            --border-light: #e2e8f0;
+            
+            --success: #10b981;
+            --success-bg: #ecfdf5;
+            --danger: #ef4444;
+            --danger-bg: #fef2f2;
+            
+            --btn-blue-bg: #eff6ff;
+            --btn-blue-text: #1d4ed8;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-dark);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* CABECERA EN DOS FILAS */
+        .top-navbar {
+            background-color: var(--primary-blue);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .navbar-row-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px 4px 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .nav-branding {
+            display: flex;
+            flex-direction: column;
+        }
+        .nav-title {
+            font-size: 15px;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+        }
+        .nav-subtitle {
+            font-size: 10px;
+            opacity: 0.95;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin-top: 2px;
+        }
+
+        .live-indicator {
+            width: 6px;
+            height: 6px;
+            background-color: #4ade80;
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 4px #4ade80;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.4; }
+            100% { opacity: 1; }
+        }
+
+        /* Contador de refresco */
+        #refresh-timer {
+            color: #fef08a;
+            font-weight: 800;
+            font-family: monospace;
+            font-size: 11px;
+            margin-left: 4px;
+        }
+
+        .version-badge {
+            background-color: rgba(255, 255, 255, 0.2);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 9px;
+            font-weight: 700;
+            font-family: monospace;
+        }
+
+        .navbar-row-menu {
+            display: flex;
+            padding: 6px 12px;
+            gap: 6px;
+            justify-content: space-around;
+        }
+        .nav-item {
+            flex: 1;
+            background-color: rgba(255, 255, 255, 0.15);
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: center;
+            transition: background 0.2s;
+        }
+        .nav-item:hover {
+            background-color: rgba(255, 255, 255, 0.25);
+        }
+        .nav-item.active {
+            background-color: white;
+            color: var(--primary-blue);
+        }
+
+        .main-container {
+            flex: 1;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* DISEÑO BASE (MÓVIL) */
+        #screen-dashboard {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            padding: 6px;
+        }
+        .dashboard-scroll {
+            flex: 1;
+            overflow-x: auto; 
+            overflow-y: hidden;
+            display: flex;
+            -webkit-overflow-scrolling: touch;
+        }
+        .dashboard-grid {
+            display: flex;
+            gap: 4px;
+            height: 100%;
+            width: max-content; 
+        }
+        
+        .grid-col {
+            width: 114px; 
+            background-color: rgba(255, 255, 255, 0.65);
+            border-radius: 8px;
+            border: 1px solid var(--border-light);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            height: 100%;
+        }
+
+        #col-wrapper-2 {
+            width: 128px !important; /* EE.UU. más ancho para que quepa "Años" */
+        }
+        #col-wrapper-3 {
+            width: 135px !important; /* España más ancho */
+        }
+
+        .col-header {
+            background-color: var(--primary-blue);
+            color: white;
+            padding: 6px 4px;
+            font-size: 8.5px;
+            font-weight: 700;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .col-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 4px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .value-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-light);
+            border-radius: 6px;
+            padding: 4px 6px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 68px;
+        }
+        .card-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 2px;
+        }
+        
+        .card-title {
+            font-size: 8.5px;
+            font-weight: 700;
+            color: var(--text-dark);
+            white-space: normal; 
+            line-height: 1.1;
+            word-break: break-word;
+        }
+        
+        .card-change {
+            font-size: 7.5px;
+            font-weight: 700;
+            padding: 0.5px 3px;
+            border-radius: 3px;
+            white-space: nowrap;
+        }
+        .change-up {
+            color: var(--success);
+            background-color: var(--success-bg);
+        }
+        .change-down {
+            color: var(--danger);
+            background-color: var(--danger-bg);
+        }
+
+        .card-price {
+            font-size: 10px;
+            font-weight: 800;
+            color: #0f172a;
+            margin-top: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            transition: background-color 0.4s ease, color 0.4s ease;
+            padding: 1px 2px;
+            border-radius: 3px;
+        }
+
+        .price-updating {
+            background-color: #fef08a !important; 
+            color: #ef4444 !important;            
+        }
+
+        .card-future {
+            color: var(--danger);
+            font-size: 7.5px;
+            font-weight: 700;
+            margin-top: 1px;
+            white-space: nowrap;
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 3px;
+            justify-content: flex-end;
+            margin-top: 3px;
+            border-top: 1px solid #f1f5f9;
+            padding-top: 3px;
+        }
+        .btn-action {
+            padding: 2.5px;
+            border: 1px solid var(--border-light);
+            border-radius: 3px;
+            background-color: #f8fafc;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+        }
+        .btn-action:hover {
+            background-color: #e2e8f0;
+        }
+        .btn-action svg {
+            width: 9px;
+            height: 9px;
+            stroke-width: 2.5px;
+        }
+
+        /* ---------------------------------------------------- */
+        /* DISEÑO DE ESCRITORIO (PC) - CENTRADO Y MÁS GRANDE    */
+        /* ---------------------------------------------------- */
+        @media (min-width: 850px) {
+            #screen-dashboard {
+                padding: 16px;
+            }
+            .dashboard-scroll {
+                justify-content: center; /* Centra las columnas en la pantalla */
+                overflow-x: hidden;      /* Quita el scroll si cabe en pantalla */
+            }
+            .dashboard-grid {
+                gap: 12px;               /* Separación más elegante */
+            }
+            .grid-col {
+                width: 170px !important; /* Columnas mucho más anchas */
+                border-radius: 12px;
+            }
+            #col-wrapper-2 {
+                width: 185px !important; 
+            }
+            #col-wrapper-3 {
+                width: 195px !important; 
+            }
+            .col-header {
+                font-size: 11px;
+                padding: 10px;
+            }
+            .value-card {
+                padding: 8px 10px;
+                min-height: 85px;
+            }
+            .card-title {
+                font-size: 11px;
+            }
+            .card-change {
+                font-size: 10px;
+                padding: 2px 6px;
+            }
+            .card-price {
+                font-size: 15px;
+                margin-top: 6px;
+                padding: 4px;
+            }
+            .card-future {
+                font-size: 10px;
+            }
+            .btn-action {
+                padding: 4px;
+            }
+            .btn-action svg {
+                width: 12px;
+                height: 12px;
+            }
+        }
+
+        /* CONFIGURACIÓN Y BIENVENIDA (Resto del CSS) */
+        #screen-welcome {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+        .welcome-card {
+            background-color: var(--bg-card);
+            padding: 24px 16px;
+            border-radius: 12px;
+            border: 1px solid var(--border-light);
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+            max-width: 340px;
+            width: 100%;
+            text-align: center;
+        }
+        .welcome-icon { font-size: 36px; margin-bottom: 8px; display: block; }
+        .welcome-title { font-size: 18px; font-weight: 800; color: var(--text-dark); margin-bottom: 2px; }
+        .welcome-author { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; }
+        .welcome-time-box { border-top: 1px solid var(--border-light); margin: 16px 0; padding-top: 16px; }
+        .welcome-date { font-size: 12px; font-weight: 500; color: var(--text-muted); }
+        .welcome-time { font-size: 26px; font-family: monospace; font-weight: 700; color: var(--primary-blue); margin-top: 4px; }
+        .btn-enter { width: 100%; background-color: var(--primary-blue); color: white; font-size: 13px; font-weight: 600; padding: 10px; border: none; border-radius: 6px; cursor: pointer; transition: background 0.2s; }
+
+        #screen-settings { flex: 1; display: flex; flex-direction: column; overflow: hidden; padding: 12px; }
+        .settings-scroll { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; max-width: 600px; width: 100%; margin: 0 auto; }
+        .settings-section { background-color: var(--bg-card); padding: 12px; border-radius: 10px; border: 1px solid var(--border-light); }
+        .settings-section h3 { font-size: 11px; font-weight: 700; color: #334155; margin-bottom: 8px; border-left: 3px solid var(--primary-blue); padding-left: 6px; }
+        .settings-section p { font-size: 10px; color: var(--text-muted); margin-bottom: 8px; }
+        .currency-selectors { display: flex; gap: 6px; }
+        .btn-currency { flex: 1; padding: 6px; border: 1px solid var(--border-light); background-color: var(--bg-card); border-radius: 6px; font-size: 10px; font-weight: 600; cursor: pointer; text-align: center; }
+        .btn-currency.active { background-color: var(--primary-blue); color: white; border-color: var(--primary-blue); }
+        .table-scroll-container { border: 1px solid var(--border-light); border-radius: 6px; max-height: 180px; overflow-y: auto; background-color: #f8fafc; }
+        .etf-table { width: 100%; border-collapse: collapse; font-size: 9.5px; text-align: left; }
+        .etf-table th { background-color: #f1f5f9; padding: 6px 8px; font-weight: 700; color: #475569; position: sticky; top: 0; z-index: 10; border-bottom: 1px solid var(--border-light); }
+        .etf-table td { padding: 6px 8px; border-bottom: 1px solid var(--border-light); vertical-align: middle; }
+        .checkbox-cell { text-align: center; width: 30px; }
+        .checkbox-cell input { cursor: pointer; width: 12px; height: 12px; accent-color: var(--primary-blue); }
+        .ticker-badge { font-family: monospace; font-weight: 700; background-color: #e2e8f0; padding: 1px 4px; border-radius: 3px; color: #334155; }
+        .backup-buttons { display: flex; gap: 6px; }
+        .btn-backup { flex: 1; padding: 8px; border-radius: 6px; font-size: 10px; font-weight: 600; cursor: pointer; text-align: center; border: none; }
+        .btn-export { background-color: #0f172a; color: white; }
+        .btn-import-label { background-color: #e2e8f0; color: #334155; display: flex; align-items: center; justify-content: center; }
+
+        /* MODAL */
+        #chart-modal { z-index: 100; }
+        .modal-overlay { position: fixed; inset: 0; background-color: rgba(15, 23, 42, 0.4); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; padding: 16px; }
+        .modal-box { background-color: var(--bg-card); width: 100%; max-width: 380px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.08); overflow: hidden; display: flex; flex-direction: column; max-height: 80vh; }
+        .modal-header { padding: 10px 14px; border-bottom: 1px solid var(--border-light); display: flex; justify-content: space-between; align-items: center; }
+        .modal-header h3 { font-size: 12px; font-weight: 700; }
+        .modal-header p { font-size: 8.5px; color: var(--text-muted); }
+        .modal-close { background: none; border: none; font-size: 18px; font-weight: 700; color: var(--text-muted); cursor: pointer; }
+        .modal-controls { padding: 6px 14px; background-color: #f8fafc; border-bottom: 1px solid var(--border-light); display: flex; justify-content: space-between; align-items: center; font-size: 10px; }
+        .modal-select { background-color: var(--bg-card); border: 1px solid var(--border-light); border-radius: 4px; padding: 1px 4px; font-weight: 500; outline: none; }
+        .modal-chart-body { padding: 12px; flex: 1; display: flex; align-items: center; justify-content: center; min-height: 220px; }
+    </style>
+</head>
+<body>
+
+    <div class="top-navbar">
+        <div class="navbar-row-title">
+            <div class="nav-branding">
+                <span class="nav-title">Consulta de Valores</span>
+                <span class="nav-subtitle">
+                    <span class="live-indicator"></span> Yahoo Finance 
+                    <span id="refresh-timer">--:--</span>
+                </span>
+            </div>
+            <span class="version-badge">100v13</span>
+        </div>
+        <div class="navbar-row-menu">
+            <button onclick="switchScreen('welcome')" id="nav-welcome" class="nav-item">Inicio</button>
+            <button onclick="switchScreen('dashboard')" id="nav-dashboard" class="nav-item">Valores</button>
+            <button onclick="switchScreen('settings')" id="nav-item-settings" class="nav-item">Configuración</button>
+        </div>
+    </div>
+
+    <div class="main-container">
+
+        <!-- PANTALLA 1: BIENVENIDA -->
+        <div id="screen-welcome">
+            <div class="welcome-card">
+                <span class="welcome-icon">📈</span>
+                <h1 class="welcome-title">Consulta de Valores</h1>
+                <p class="welcome-author">Por Lucio J, Martinez 100v13</p>
+                
+                <div class="welcome-time-box">
+                    <p id="welcome-date" class="welcome-date">-- de -- de ----</p>
+                    <p id="welcome-time" class="welcome-time">00:00:00</p>
+                </div>
+                
+                <button onclick="switchScreen('dashboard')" class="btn-enter">
+                    Ingresar al Panel
+                </button>
+            </div>
+        </div>
+
+        <!-- PANTALLA 2: DASHBOARD -->
+        <div id="screen-dashboard" class="hidden">
+            <div class="dashboard-scroll">
+                <div class="dashboard-grid">
+                    
+                    <div class="grid-col">
+                        <div class="col-header">Metales & Energía</div>
+                        <div id="col-1" class="col-content"></div>
+                    </div>
+
+                    <div id="col-wrapper-2" class="grid-col">
+                        <div class="col-header">Renta Fija EE.UU.</div>
+                        <div id="col-2" class="col-content"></div>
+                    </div>
+
+                    <div id="col-wrapper-3" class="grid-col">
+                        <div class="col-header">RF España & IBEX</div>
+                        <div id="col-3" class="col-content"></div>
+                    </div>
+
+                    <div class="grid-col">
+                        <div class="col-header">Índices & Divisas</div>
+                        <div id="col-4" class="col-content"></div>
+                    </div>
+
+                    <div class="grid-col">
+                        <div class="col-header">ETFs Opcionales</div>
+                        <div id="col-5" class="col-content"></div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- PANTALLA 3: CONFIGURACIÓN -->
+        <div id="screen-settings" class="hidden">
+            <div class="settings-scroll">
+                
+                <div class="settings-section">
+                    <h3>Moneda de Visualización Principal</h3>
+                    <p>Configura la divisa de conversión de la plataforma (El IBEX 35 siempre se visualizará en Euros):</p>
+                    <div class="currency-selectors">
+                        <button onclick="setCurrency('EUR')" id="btn-curr-EUR" class="btn-currency">EUR (€)</button>
+                        <button onclick="setCurrency('USD')" id="btn-curr-USD" class="btn-currency">USD ($)</button>
+                    </div>
+                </div>
+
+                <div class="settings-section">
+                    <h3>Selección de ETFs Opcionales</h3>
+                    <p>Marca los ETFs que se visualizarán en la quinta columna:</p>
+                    
+                    <div class="table-scroll-container">
+                        <table class="etf-table">
+                            <thead>
+                                <tr>
+                                    <th class="checkbox-cell">Ver</th>
+                                    <th>Ticker</th>
+                                    <th>Nombre</th>
+                                    <th>Descripción</th>
+                                </tr>
+                            </thead>
+                            <tbody id="etf-table-body">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="settings-section">
+                    <h3>Copia de Seguridad de la Plataforma</h3>
+                    <p>Resguarda o restaura tus configuraciones locales en formato JSON:</p>
+                    <div class="backup-buttons">
+                        <button onclick="exportBackup()" class="btn-backup btn-export">
+                            Exportar JSON
+                        </button>
+                        <label class="btn-backup btn-import-label">
+                            Importar JSON
+                            <input type="file" id="import-file" class="hidden" onchange="importBackup(event)">
+                        </label>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+    <!-- MODAL DE GRÁFICOS -->
+    <div id="chart-modal" class="modal-overlay hidden">
+        <div class="modal-box">
+            <div class="modal-header">
+                <div>
+                    <h3 id="modal-title">Gráfico de Activo</h3>
+                    <p>Simulación histórica del activo seleccionado</p>
+                </div>
+                <button onclick="closeChartModal()" class="modal-close">&times;</button>
+            </div>
+            
+            <div class="modal-controls">
+                <span>Periodo:</span>
+                <select id="chart-timeframe" onchange="updateChartData()" class="modal-select">
+                    <option value="month">Último mes</option>
+                    <option value="year">Año actual</option>
+                    <option value="5years">Últimos 5 años</option>
+                </select>
+            </div>
+
+            <div class="modal-chart-body">
+                <canvas id="historyChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // CONFIGURACIÓN INICIAL
+        let currentCurrency = 'USD';
+        const currencySymbols = { EUR: '€', USD: '$' };
+        let eurToUsd = 1.16; 
+
+        // CRONÓMETRO DE ACTUALIZACIÓN
+        let countdownSeconds = 300; // 5 minutos exactos
+        let countdownTimerId = null;
+
+        // Base de Datos Estructural (Tickers reales para la conexión)
+        const assetDatabase = {
+            oro: { name: "Oro (oz)", ticker: "GC=F", base: 4540.00, col: 1, nativeCurrency: 'USD', change: 0 }, 
+            plata: { name: "Plata (oz)", ticker: "SI=F", base: 76.25, col: 1, nativeCurrency: 'USD', change: 0 },  
+            bitcoin: { name: "Bitcoin", ticker: "BTC-USD", base: 76700.00, col: 1, nativeCurrency: 'USD', change: 0 }, 
+            ethereum: { name: "Ethereum", ticker: "ETH-USD", base: 3350.00, col: 1, nativeCurrency: 'USD', change: 0 }, 
+            brent: { name: "Crudo Brent", ticker: "BZ=F", base: 100.00, col: 1, nativeCurrency: 'USD', change: 0 },  
+
+            letrasUS1A: { name: "EE.UU. - 1 Año", ticker: "^IRX", base: 4.50, col: 2, isYield: true, change: 0 },
+            letrasUS5A: { name: "EE.UU. - 5 Años", ticker: "^FVX", base: 4.25, col: 2, isYield: true, change: 0 },
+            letrasUS10A: { name: "EE.UU. - 10 Años", ticker: "^TNX", base: 4.18, col: 2, isYield: true, change: 0 },
+            letrasUS30A: { name: "EE.UU. - 30 Años", ticker: "^TYX", base: 4.35, col: 2, isYield: true, change: 0 },
+
+            letrasES12M: { name: "España - 12 Meses", ticker: "ES1Y.P", base: 3.50, col: 3, isYield: true, change: 0 },
+            letrasES3A: { name: "España - 3 Años", ticker: "ES3Y.P", base: 3.10, col: 3, isYield: true, change: 0 },
+            letrasES5A: { name: "España - 5 Años", ticker: "ES5Y.P", base: 3.25, col: 3, isYield: true, change: 0 },
+            letrasES10A: { name: "España - 10 Años", ticker: "ES10YT=X", base: 3.42, col: 3, isYield: true, change: 0 },
+            ibex35: { name: "IBEX 35", ticker: "^IBEX", base: 18290.90, col: 3, nativeCurrency: 'EUR', change: 0 }, 
+
+            sp500: { name: "S&P 500", ticker: "^GSPC", base: 7519.12, col: 4, nativeCurrency: 'USD', isUSMarket: true, change: 0 },      
+            nasdaq: { name: "Nasdaq 100", ticker: "^NDX", base: 29994.00, col: 4, nativeCurrency: 'USD', isUSMarket: true, change: 0 },  
+            dowjones: { name: "Dow Jones", ticker: "^DJI", base: 50461.68, col: 4, nativeCurrency: 'USD', isUSMarket: true, change: 0 }, 
+            dolareuro: { name: "Dólar/Euro", ticker: "USDEUR=X", base: 0.8620, col: 4, isForex: true, change: 0 },     
+
+            spy: { name: "SPY (S&P 500)", ticker: "SPY", base: 751.91, col: 5, category: 'etf', nativeCurrency: 'USD', isUSMarket: true, desc: "Fondo que replica el índice S&P 500", change: 0 },
+            qqq: { name: "QQQ (Nasdaq 100)", ticker: "QQQ", base: 445.00, col: 5, category: 'etf', nativeCurrency: 'USD', isUSMarket: true, desc: "Fondo enfocado en tecnología", change: 0 },
+            dia: { name: "DIA (Dow Jones)", ticker: "DIA", base: 504.61, col: 5, category: 'etf', nativeCurrency: 'USD', isUSMarket: true, desc: "Replica el índice de las 30 industriales", change: 0 },
+            iwm: { name: "IWM (Russell)", ticker: "IWM", base: 215.00, col: 5, category: 'etf', nativeCurrency: 'USD', isUSMarket: true, desc: "Invierte en pequeña capitalización de EE.UU.", change: 0 },
+            eem: { name: "EEM (Emergentes)", ticker: "EEM", base: 43.20, col: 5, category: 'etf', nativeCurrency: 'USD', isUSMarket: true, desc: "Acciones de mercados emergentes globales", change: 0 },
+            gld: { name: "GLD (Fondo Oro)", ticker: "GLD", base: 416.40, col: 5, category: 'etf', nativeCurrency: 'USD', isUSMarket: true, desc: "Fondo respaldado por reservas de oro físico", change: 0 },
+            slv: { name: "SLV (Fondo Plata)", ticker: "SLV", base: 71.30, col: 5, category: 'etf', nativeCurrency: 'USD', isUSMarket: true, desc: "Fondo respaldado por reservas de plata física", change: 0 },
+            vti: { name: "VTI (Mercado Total)", ticker: "VTI", base: 260.00, col: 5, category: 'etf', nativeCurrency: 'USD', isUSMarket: true, desc: "Cubre la totalidad de acciones de EE.UU.", change: 0 },
+            tlt: { name: "TLT (Bonos 20A+)", ticker: "TLT", base: 92.50, col: 5, category: 'etf', nativeCurrency: 'USD', isUSMarket: true, desc: "Bonos del tesoro estadounidense a largo plazo", change: 0 },
+            arkk: { name: "ARKK (Innovación)", ticker: "ARKK", base: 49.10, col: 5, category: 'etf', nativeCurrency: 'USD', isUSMarket: true, desc: "Gestión de innovación tecnológica disruptiva", change: 0 },
+            uso: { name: "USO (Fondo Petróleo)", ticker: "USO", base: 78.50, col: 5, category: 'etf', nativeCurrency: 'USD', isUSMarket: true, desc: "Fondo indexado al precio del crudo ligero WTI", change: 0 }
+        };
+
+        let selectedETFs = ['spy', 'qqq', 'gld'];
+        let activePrices = {};
+
+        // INICIALIZACIÓN
+        window.addEventListener('DOMContentLoaded', () => {
+            loadLocalStorage();
+            initClock();
+            generatePricesIfEmpty();
+            renderDashboard();
+            renderSettings();
+            switchScreen('welcome');
+
+            // Solicitud de datos reales al iniciar la app
+            fetchRealMarketData();
+        });
+
+        // -----------------------------------------------------------------
+        // RELOJ DE CUENTA ATRÁS Y CONTROL DE ACTUALIZACIÓN DE 5 MINUTOS
+        // -----------------------------------------------------------------
+        function startCountdown() {
+            clearInterval(countdownTimerId);
+            countdownSeconds = 300; // Reset a 5 minutos (300 segundos)
+            updateCountdownUI();
+            
+            countdownTimerId = setInterval(() => {
+                countdownSeconds--;
+                updateCountdownUI();
+                
+                // Cuando llegue a 0, pedimos datos a internet y el reloj se reiniciará solo
+                if (countdownSeconds <= 0) {
+                    fetchRealMarketData();
+                }
+            }, 1000);
+        }
+
+        function updateCountdownUI() {
+            const min = Math.floor(countdownSeconds / 60);
+            const sec = countdownSeconds % 60;
+            const timeString = `${min}:${sec < 10 ? '0' : ''}${sec}`;
+            const el = document.getElementById('refresh-timer');
+            if (el) el.innerText = `Próx. act: ${timeString}`;
+        }
+
+        // -----------------------------------------------------------------
+        // MOTOR DE CONEXIÓN A DATOS REALES (VIA NETLIFY FUNCTIONS)
+        // -----------------------------------------------------------------
+        async function fetchRealMarketData() {
+            const tickers = Object.values(assetDatabase).map(a => a.ticker).join(',');
+            
+            // Llamamos a nuestro propio backend en la nube de Netlify
+            const targetUrl = `/.netlify/functions/quote?symbols=${tickers},EURUSD=X`;
+
+            try {
+                const response = await fetch(targetUrl);
+                const data = await response.json();
+
+                if(data && data.quoteResponse && data.quoteResponse.result) {
+                    
+                    const eurusdQuote = data.quoteResponse.result.find(q => q.symbol === 'EURUSD=X');
+                    if (eurusdQuote && eurusdQuote.regularMarketPrice) {
+                        eurToUsd = eurusdQuote.regularMarketPrice;
+                    }
+
+                    data.quoteResponse.result.forEach(quote => {
+                        const localKey = Object.keys(assetDatabase).find(key => assetDatabase[key].ticker === quote.symbol);
+                        
+                        if(localKey && activePrices[localKey] && quote.regularMarketPrice) {
+                            activePrices[localKey].price = quote.regularMarketPrice;
+                            activePrices[localKey].change = quote.regularMarketChangePercent;
+                        }
+                    });
+
+                    saveLocalStorage();
+                    renderDashboard();
+                    triggerFlashEffect();
+                }
+            } catch (error) {
+                console.error("No se pudieron obtener datos reales, la API gratuita puede estar saturada.", error);
+            } finally {
+                // Haya funcionado o fallado, volvemos a iniciar la cuenta atrás de 5 minutos
+                startCountdown();
+            }
+        }
+
+        // DESTELLO VISUAL
+        function triggerFlashEffect() {
+            const priceElements = document.querySelectorAll('.card-price');
+            priceElements.forEach(el => {
+                if (el) el.classList.add('price-updating');
+            });
+
+            setTimeout(() => {
+                const updatedElements = document.querySelectorAll('.card-price');
+                updatedElements.forEach(el => {
+                    if (el) el.classList.remove('price-updating');
+                });
+            }, 1000);
+        }
+
+        // BOTÓN MANUAL: Si pulsas el botón, fuerza la actualización global inmediata
+        function updateAssetPrice(key) {
+            // Ponemos el reloj a 0 visualmente para que el usuario vea que está cargando
+            document.getElementById('refresh-timer').innerText = "Cargando...";
+            fetchRealMarketData();
+        }
+
+        function isNYSEClosed() {
+            try {
+                const nyTimeStr = new Date().toLocaleString("en-US", { timeZone: "America/New_York" });
+                const nyDate = new Date(nyTimeStr);
+                const day = nyDate.getDay(); 
+                const hours = nyDate.getHours();
+                const minutes = nyDate.getMinutes();
+
+                if (day === 0 || day === 6) return true;
+
+                const currentMinutes = hours * 60 + minutes;
+                const openMinutes = 9 * 60 + 30; // 9:30 AM
+                const closeMinutes = 16 * 60;    // 4:00 PM
+
+                return (currentMinutes < openMinutes || currentMinutes >= closeMinutes);
+            } catch (e) {
+                return false; 
+            }
+        }
+
+        function formatSpanishNumber(value, isYield = false, isForex = false) {
+            let decimals = isForex ? 4 : 2;
+            let sign = value < 0 ? "-" : "";
+            let absValue = Math.abs(value);
+            
+            let parts = absValue.toFixed(decimals).split('.');
+            parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+            
+            return sign + parts.join(',');
+        }
+
+        function generatePricesIfEmpty() {
+            for (const key in assetDatabase) {
+                if(!activePrices[key]) {
+                    activePrices[key] = {
+                        price: assetDatabase[key].base,
+                        change: assetDatabase[key].change
+                    };
+                }
+            }
+        }
+
+        function renderDashboard() {
+            const nyClosed = isNYSEClosed();
+
+            for (let i = 1; i <= 5; i++) {
+                const colEl = document.getElementById(`col-${i}`);
+                if (colEl) colEl.innerHTML = '';
+            }
+
+            Object.keys(assetDatabase).forEach(key => {
+                const asset = assetDatabase[key];
+                if (!asset) return;
+                
+                if (asset.category === 'etf' && !selectedETFs.includes(key)) {
+                    return; 
+                }
+
+                const data = activePrices[key] || { price: asset.base, change: asset.change };
+                const isPositive = data.change >= 0;
+                const changeClass = isPositive ? 'change-up' : 'change-down';
+                const changeSign = isPositive ? '+' : '';
+
+                let priceDisplay = '';
+                let lockPrefix = (asset.isUSMarket && nyClosed) ? '🔒 ' : ''; 
+                
+                if (asset.isYield) {
+                    priceDisplay = `${formatSpanishNumber(data.price)} %`;
+                } else if (asset.isForex) {
+                    if (currentCurrency === 'EUR') {
+                        priceDisplay = `1 USD = ${formatSpanishNumber(data.price, false, true)} EUR`;
+                    } else {
+                        priceDisplay = `1 EUR = ${formatSpanishNumber(1 / data.price, false, true)} USD`;
+                    }
+                } else {
+                    let calculatedValue = data.price;
+                    let currentSymbol = currencySymbols[currentCurrency];
+                    
+                    if (key === 'ibex35') {
+                        calculatedValue = data.price; 
+                        currentSymbol = '€';          
+                    } else {
+                        if (asset.nativeCurrency === 'USD' && currentCurrency === 'EUR') {
+                            calculatedValue = data.price / eurToUsd; 
+                        } else if (asset.nativeCurrency === 'EUR' && currentCurrency === 'USD') {
+                            calculatedValue = data.price * eurToUsd; 
+                        }
+                    }
+
+                    priceDisplay = `${lockPrefix}${formatSpanishNumber(calculatedValue)} ${currentSymbol}`;
+                }
+
+                let futureHtml = '';
+                if (asset.isUSMarket && nyClosed) {
+                    let futureValue = data.price * 1.0006; 
+                    let calculatedFuture = futureValue;
+                    let currentFutureSymbol = currencySymbols[currentCurrency];
+
+                    if (asset.nativeCurrency === 'USD' && currentCurrency === 'EUR') {
+                        calculatedFuture = futureValue / eurToUsd;
+                    }
+                    futureHtml = `<div class="card-future">Futuro: ${formatSpanishNumber(calculatedFuture)} ${currentFutureSymbol}</div>`;
+                }
+
+                const cardHtml = `
+                    <div class="value-card">
+                        <div class="card-top">
+                            <span class="card-title" title="${asset.name}">${asset.name}</span>
+                            <span class="card-change ${changeClass}">
+                                ${changeSign}${formatSpanishNumber(data.change)}%
+                            </span>
+                        </div>
+                        <div class="card-price">${priceDisplay}</div>
+                        ${futureHtml}
+                        <div class="card-actions">
+                            <button onclick="updateAssetPrice('${key}')" class="btn-action" title="Actualizar Datos Reales Ahora">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.21 15H19M9 5a9 9 0 010 18v-5h-.582m-15.356-2A8.001 8.001 0 112.79 9H5"></path></svg>
+                            </button>
+                            <button onclick="showChart('${key}')" class="btn-action btn-chart" title="Ver Histórico">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 002 2h2a2 2 0 002-2z"></path></svg>
+                            </button>
+                        </div>
+                    </div>
+                `;
+
+                const colEl = document.getElementById(`col-${asset.col}`);
+                if (colEl) colEl.insertAdjacentHTML('beforeend', cardHtml);
+            });
+        }
+
+        function renderSettings() {
+            ['EUR', 'USD'].forEach(curr => {
+                const btn = document.getElementById(`btn-curr-${curr}`);
+                if (btn) {
+                    if (curr === currentCurrency) {
+                        btn.classList.add('active');
+                    } else {
+                        btn.classList.remove('active');
+                    }
+                }
+            });
+
+            const tbody = document.getElementById('etf-table-body');
+            if (tbody) {
+                tbody.innerHTML = '';
+
+                Object.keys(assetDatabase).forEach(key => {
+                    const asset = assetDatabase[key];
+                    if (asset && asset.category === 'etf') {
+                        const isChecked = selectedETFs.includes(key) ? 'checked' : '';
+                        const rowHtml = `
+                            <tr>
+                                <td class="checkbox-cell">
+                                    <input type="checkbox" value="${key}" ${isChecked} onchange="toggleETF('${key}')">
+                                </td>
+                                <td><span class="ticker-badge">${key.toUpperCase()}</span></td>
+                                <td><strong>${asset.name.replace(/.*\(|\)/g, '')}</strong></td>
+                                <td class="text-slate-500">${asset.desc}</td>
+                            </tr>
+                        `;
+                        tbody.insertAdjacentHTML('beforeend', rowHtml);
+                    }
+                });
+            }
+        }
+
+        function setCurrency(curr) {
+            currentCurrency = curr;
+            saveLocalStorage();
+            renderDashboard();
+            renderSettings();
+        }
+
+        function toggleETF(key) {
+            if (selectedETFs.includes(key)) {
+                selectedETFs = selectedETFs.filter(k => k !== key);
+            } else {
+                selectedETFs.push(key);
+            }
+            saveLocalStorage();
+            renderDashboard();
+        }
+
+        function exportBackup() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({
+                currentCurrency,
+                selectedETFs
+            }));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", `Copia_Valores100v13_LucioJMartinez.json`);
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+        }
+
+        function importBackup(event) {
+            const fileReader = new FileReader();
+            fileReader.onload = function(e) {
+                try {
+                    const parsed = JSON.parse(e.target.result);
+                    if (parsed.currentCurrency) currentCurrency = parsed.currentCurrency;
+                    if (parsed.selectedETFs) selectedETFs = parsed.selectedETFs;
+                    
+                    saveLocalStorage();
+                    renderDashboard();
+                    renderSettings();
+                    alert("Copia de seguridad importada con éxito.");
+                } catch (err) {
+                    alert("Error al procesar el archivo.");
+                }
+            };
+            fileReader.readAsText(event.target.files[0]);
+        }
+
+        function saveLocalStorage() {
+            try {
+                localStorage.setItem('val_100v13_currency', currentCurrency);
+                localStorage.setItem('val_100v13_selected_etfs', JSON.stringify(selectedETFs));
+            } catch (e) {}
+        }
+
+        function loadLocalStorage() {
+            try {
+                const savedCurr = localStorage.getItem('val_100v13_currency');
+                const savedSelected = localStorage.getItem('val_100v13_selected_etfs');
+
+                if (savedCurr) {
+                    currentCurrency = savedCurr;
+                } else {
+                    currentCurrency = 'USD'; 
+                }
+                
+                if (savedSelected) {
+                    selectedETFs = JSON.parse(savedSelected);
+                }
+            } catch (e) {
+                currentCurrency = 'USD'; 
+                selectedETFs = ['spy', 'qqq', 'gld'];
+            }
+        }
+
+        function initClock() {
+            const updateTime = () => {
+                const now = new Date();
+                const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+                const dateEl = document.getElementById('welcome-date');
+                const timeEl = document.getElementById('welcome-time');
+                if (dateEl) dateEl.innerText = now.toLocaleDateString('es-ES', options);
+                if (timeEl) timeEl.innerText = now.toLocaleTimeString('es-ES');
+            };
+            updateTime();
+            setInterval(updateTime, 1000);
+        }
+
+        function switchScreen(screenId) {
+            const screenWelcome = document.getElementById('screen-welcome');
+            const screenDashboard = document.getElementById('screen-dashboard');
+            const screenSettings = document.getElementById('screen-settings');
+            
+            if (screenWelcome) screenWelcome.classList.add('hidden');
+            if (screenDashboard) screenDashboard.classList.add('hidden');
+            if (screenSettings) screenSettings.classList.add('hidden');
+            
+            const navWelcome = document.getElementById('nav-welcome');
+            const navDashboard = document.getElementById('nav-dashboard');
+            const navSettings = document.getElementById('nav-item-settings');
+            
+            if (navWelcome) navWelcome.classList.remove('active');
+            if (navDashboard) navDashboard.classList.remove('active');
+            if (navSettings) navSettings.classList.remove('active');
+
+            const activeScreen = document.getElementById(`screen-${screenId}`);
+            if (activeScreen) activeScreen.classList.remove('hidden');
+            
+            if (screenId === 'settings') {
+                if (navSettings) navSettings.classList.add('active');
+            } else {
+                const activeNav = document.getElementById(`nav-${screenId}`);
+                if (activeNav) activeNav.classList.add('active');
+            }
+        }
+
+        let chartInstance = null;
+        let selectedAssetForChart = '';
+
+        function showChart(key) {
+            selectedAssetForChart = key;
+            const asset = assetDatabase[key];
+            const modalTitleEl = document.getElementById('modal-title');
+            if (modalTitleEl) modalTitleEl.innerText = asset.name;
+            
+            const timeframeEl = document.getElementById('chart-timeframe');
+            if (timeframeEl) timeframeEl.value = 'month';
+            
+            const modalEl = document.getElementById('chart-modal');
+            if (modalEl) modalEl.classList.remove('hidden');
+            
+            updateChartData();
+        }
+
+        function closeChartModal() {
+            const modalEl = document.getElementById('chart-modal');
+            if (modalEl) modalEl.classList.add('hidden');
+            
+            if (chartInstance) {
+                chartInstance.destroy();
+                chartInstance = null;
+            }
+        }
+
+        function updateChartData() {
+            const key = selectedAssetForChart;
+            const asset = assetDatabase[key];
+            if (!asset) return;
+            
+            const timeframeEl = document.getElementById('chart-timeframe');
+            const timeframe = timeframeEl ? timeframeEl.value : 'month';
+            const currentPrice = activePrices[key]?.price || asset.base;
+            
+            let labels = [];
+            let data = [];
+            
+            if (timeframe === 'month') {
+                const days = 30;
+                for (let i = days; i >= 0; i--) {
+                    const d = new Date();
+                    d.setDate(d.getDate() - i);
+                    labels.push(d.toLocaleDateString('es-ES', { day: '2-digit', month: 'short' }));
+                }
+                data = simulateTrend(currentPrice, days + 1, 0.02);
+            } else if (timeframe === 'year') {
+                const months = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+                const currentMonthIdx = new Date().getMonth();
+                for (let i = 0; i <= currentMonthIdx; i++) {
+                    labels.push(months[i]);
+                }
+                data = simulateTrend(currentPrice, labels.length, 0.06);
+            } else if (timeframe === '5years') {
+                const currentYear = new Date().getFullYear();
+                for (let i = 4; i >= 0; i--) {
+                    labels.push(currentYear - i);
+                }
+                data = simulateTrend(currentPrice, 5, 0.15);
+            }
+
+            let unitToDisplay = asset.isYield ? '%' : currencySymbols[currentCurrency];
+            if (key === 'ibex35') unitToDisplay = '€';
+            if (asset.isForex) unitToDisplay = ''; 
+
+            renderChart(labels, data, unitToDisplay);
+        }
+
+        function simulateTrend(targetPrice, steps, volatility) {
+            let result = [targetPrice];
+            for (let i = 1; i < steps; i++) {
+                const change = (Math.random() * 2 - 1) * volatility;
+                result.unshift(Number((result[0] * (1 - change)).toFixed(assetDatabase[selectedAssetForChart].isForex ? 4 : 2)));
+            }
+            return result;
+        }
+
+        function renderChart(labels, data, unit) {
+            const ctx = document.getElementById('historyChart').getContext('2d');
+            if (!ctx) return;
+            
+            if (chartInstance) {
+                chartInstance.destroy();
+            }
+
+            chartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Cotización',
+                        data: data,
+                        borderColor: '#1976d2',
+                        backgroundColor: 'rgba(25, 118, 210, 0.05)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.15,
+                        pointRadius: 1.5,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        x: {
+                            grid: { display: false },
+                            ticks: { font: { size: 9 } }
+                        },
+                        y: {
+                            grid: { color: '#f1f5f9' },
+                            ticks: { 
+                                font: { size: 9 },
+                                callback: function(value) { 
+                                    return formatSpanishNumber(value, false, assetDatabase[selectedAssetForChart].isForex) + ' ' + unit; 
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>
