@@ -1,8 +1,7 @@
-const yahooFinance = require('yahoo-finance2').default;
+import yahooFinance from 'yahoo-finance2';
 
-exports.handler = async function(event, context) {
+export const handler = async function(event, context) {
     try {
-        // Obtenemos los símbolos de la URL (ej: ?symbols=AAPL,MSFT,EURUSD=X)
         const symbolsParam = event.queryStringParameters.symbols;
         
         if (!symbolsParam) {
@@ -18,11 +17,8 @@ exports.handler = async function(event, context) {
 
         const symbolsArray = symbolsParam.split(',');
         
-        // yahoo-finance2 se encarga de saltar las protecciones de Yahoo automáticamente
         const quotes = await yahooFinance.quote(symbolsArray);
         
-        // El frontend original espera que la respuesta tenga este formato exacto:
-        // { quoteResponse: { result: [...] } }
         return {
             statusCode: 200,
             headers: {
