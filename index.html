@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Consulta de Valores por Lucio J, Martinez 100v13</title>
+    <title>Consulta de Valores por Lucio J, Martinez 100v2</title>
     <!-- Chart.js para los gráficos interactivos -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
@@ -321,6 +321,16 @@
         /* DISEÑO DE ESCRITORIO (PC) - CENTRADO Y MÁS GRANDE    */
         /* ---------------------------------------------------- */
         @media (min-width: 850px) {
+            .navbar-row-menu {
+                justify-content: flex-end;
+                gap: 8px;
+                padding: 8px 12px;
+            }
+            .nav-item {
+                flex: 0 0 auto;
+                min-width: 108px;
+                padding: 6px 16px;
+            }
             #screen-dashboard {
                 padding: 16px;
             }
@@ -446,7 +456,7 @@
                     <span id="refresh-timer">--:--</span>
                 </span>
             </div>
-            <span class="version-badge">100v13</span>
+            <span class="version-badge">100v2</span>
         </div>
         <div class="navbar-row-menu">
             <button onclick="switchScreen('welcome')" id="nav-welcome" class="nav-item">Inicio</button>
@@ -462,7 +472,7 @@
             <div class="welcome-card">
                 <span class="welcome-icon">📈</span>
                 <h1 class="welcome-title">Consulta de Valores</h1>
-                <p class="welcome-author">Por Lucio J, Martinez 100v13</p>
+                <p class="welcome-author">Por Lucio J, Martinez 100v2</p>
                 
                 <div class="welcome-time-box">
                     <p id="welcome-date" class="welcome-date">-- de -- de ----</p>
@@ -614,6 +624,12 @@
             letrasUS30A: { name: "EE.UU. - 30 Años", ticker: "^TYX", base: 4.35, col: 2, isYield: true, change: 0 },
 
             ibex35: { name: "IBEX 35", ticker: "^IBEX", base: 18290.90, col: 5, nativeCurrency: 'EUR', change: 0 }, 
+            santander: { name: "Santander", ticker: "SAN.MC", base: 10.40, col: 5, nativeCurrency: 'EUR', change: 0 },
+            bbva: { name: "BBVA", ticker: "BBVA.MC", base: 19.80, col: 5, nativeCurrency: 'EUR', change: 0 },
+            caixabank: { name: "CaixaBank", ticker: "CABK.MC", base: 11.40, col: 5, nativeCurrency: 'EUR', change: 0 },
+            inditex: { name: "Inditex", ticker: "ITX.MC", base: 53.00, col: 5, nativeCurrency: 'EUR', change: 0 },
+            iberdrola: { name: "Iberdrola", ticker: "IBE.MC", base: 19.80, col: 5, nativeCurrency: 'EUR', change: 0 },
+            ferrovial: { name: "Ferrovial", ticker: "FER.MC", base: 60.50, col: 5, nativeCurrency: 'EUR', change: 0 },
 
             sp500: { name: "S&P 500", ticker: "^GSPC", base: 7519.12, col: 3, nativeCurrency: 'USD', isUSMarket: true, change: 0 },      
             nasdaq: { name: "Nasdaq 100", ticker: "^NDX", base: 29994.00, col: 3, nativeCurrency: 'USD', isUSMarket: true, change: 0 },  
