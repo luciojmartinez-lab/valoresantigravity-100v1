@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Consulta de Valores por Lucio J, Martinez 100v2</title>
+    <title>Consulta de Valores por Lucio J, Martinez 100v3</title>
     <!-- Chart.js para los gráficos interactivos -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
@@ -417,8 +417,8 @@
         .settings-section { background-color: var(--bg-card); padding: 12px; border-radius: 10px; border: 1px solid var(--border-light); }
         .settings-section h3 { font-size: 11px; font-weight: 700; color: #334155; margin-bottom: 8px; border-left: 3px solid var(--primary-blue); padding-left: 6px; }
         .settings-section p { font-size: 10px; color: var(--text-muted); margin-bottom: 8px; }
-        .currency-selectors { display: flex; gap: 6px; }
-        .btn-currency { flex: 1; padding: 6px; border: 1px solid var(--border-light); background-color: var(--bg-card); border-radius: 6px; font-size: 10px; font-weight: 600; cursor: pointer; text-align: center; }
+        .currency-selectors { display: flex; flex-wrap: wrap; gap: 6px; }
+        .btn-currency { flex: 1 1 82px; padding: 6px; border: 1px solid var(--border-light); background-color: var(--bg-card); border-radius: 6px; font-size: 10px; font-weight: 600; cursor: pointer; text-align: center; }
         .btn-currency.active { background-color: var(--primary-blue); color: white; border-color: var(--primary-blue); }
         .table-scroll-container { border: 1px solid var(--border-light); border-radius: 6px; max-height: 180px; overflow-y: auto; background-color: #f8fafc; }
         .etf-table { width: 100%; border-collapse: collapse; font-size: 9.5px; text-align: left; }
@@ -456,7 +456,7 @@
                     <span id="refresh-timer">--:--</span>
                 </span>
             </div>
-            <span class="version-badge">100v2</span>
+            <span class="version-badge">100v3</span>
         </div>
         <div class="navbar-row-menu">
             <button onclick="switchScreen('welcome')" id="nav-welcome" class="nav-item">Inicio</button>
@@ -472,7 +472,7 @@
             <div class="welcome-card">
                 <span class="welcome-icon">📈</span>
                 <h1 class="welcome-title">Consulta de Valores</h1>
-                <p class="welcome-author">Por Lucio J, Martinez 100v2</p>
+                <p class="welcome-author">Por Lucio J, Martinez 100v3</p>
                 
                 <div class="welcome-time-box">
                     <p id="welcome-date" class="welcome-date">-- de -- de ----</p>
@@ -525,10 +525,8 @@
                 
                 <div class="settings-section">
                     <h3>Moneda de Visualización Principal</h3>
-                    <p>Configura la divisa de conversión de la plataforma (El IBEX 35 siempre se visualizará en Euros):</p>
+                    <p>Configura la divisa de conversion de la plataforma:</p>
                     <div class="currency-selectors">
-                        <button onclick="setCurrency('EUR')" id="btn-curr-EUR" class="btn-currency">EUR (€)</button>
-                        <button onclick="setCurrency('USD')" id="btn-curr-USD" class="btn-currency">USD ($)</button>
                     </div>
                 </div>
 
@@ -602,7 +600,25 @@
     <script>
         // CONFIGURACIÓN INICIAL
         let currentCurrency = 'USD';
-        const currencySymbols = { EUR: '€', USD: '$' };
+        const currencySymbols = { EUR: '€', USD: '$', GBP: '£', SEK: 'kr', NOK: 'kr', DKK: 'kr', PLN: 'zł' };
+        const currencyNames = {
+            EUR: 'Euro',
+            USD: 'Dolar',
+            GBP: 'Libra',
+            SEK: 'Corona sueca',
+            NOK: 'Corona noruega',
+            DKK: 'Corona danesa',
+            PLN: 'Zloty polaco'
+        };
+        const currencyFxTickers = {
+            EUR: 'EURUSD=X',
+            GBP: 'GBPUSD=X',
+            SEK: 'SEKUSD=X',
+            NOK: 'NOKUSD=X',
+            DKK: 'DKKUSD=X',
+            PLN: 'PLNUSD=X'
+        };
+        let currencyToUsd = { USD: 1, EUR: 1.16, GBP: 1.35, SEK: 0.107, NOK: 0.108, DKK: 0.156, PLN: 0.275 };
         let eurToUsd = 1.16; 
 
         // CRONÓMETRO DE ACTUALIZACIÓN
@@ -701,9 +717,10 @@
         // -----------------------------------------------------------------
         async function fetchRealMarketData() {
             const tickers = Object.values(assetDatabase).map(a => a.ticker).join(',');
+            const fxTickers = Object.values(currencyFxTickers).join(',');
             
             // Llamamos a nuestro propio backend en la nube de Netlify
-            const targetUrl = `/.netlify/functions/quote?symbols=${tickers},EURUSD=X`;
+            const targetUrl = `/.netlify/functions/quote?symbols=${tickers},${fxTickers}`;
 
             try {
                 const response = await fetch(targetUrl);
@@ -718,7 +735,15 @@
                     const eurusdQuote = data.quoteResponse.result.find(q => q.symbol === 'EURUSD=X');
                     if (eurusdQuote && typeof eurusdQuote.regularMarketPrice === 'number') {
                         eurToUsd = eurusdQuote.regularMarketPrice;
+                        currencyToUsd.EUR = eurusdQuote.regularMarketPrice;
                     }
+
+                    Object.keys(currencyFxTickers).forEach(currency => {
+                        const fxQuote = data.quoteResponse.result.find(q => q.symbol === currencyFxTickers[currency]);
+                        if (fxQuote && typeof fxQuote.regularMarketPrice === 'number') {
+                            currencyToUsd[currency] = fxQuote.regularMarketPrice;
+                        }
+                    });
 
                     let updatedCount = 0;
 
@@ -822,6 +847,15 @@
             }
         }
 
+        function convertCurrency(value, fromCurrency, toCurrency) {
+            if (fromCurrency === toCurrency) return value;
+
+            const fromRate = currencyToUsd[fromCurrency] || 1;
+            const toRate = currencyToUsd[toCurrency] || 1;
+
+            return (value * fromRate) / toRate;
+        }
+
         function generatePricesIfEmpty() {
             for (const key in assetDatabase) {
                 if(!activePrices[key]) {
@@ -864,36 +898,20 @@
                     if (currentCurrency === 'EUR') {
                         priceDisplay = `1 USD = ${formatSpanishNumber(data.price, false, true)} EUR`;
                     } else {
-                        priceDisplay = `1 EUR = ${formatSpanishNumber(1 / data.price, false, true)} USD`;
+                        priceDisplay = `1 EUR = ${formatSpanishNumber(convertCurrency(1, 'EUR', currentCurrency), false, true)} ${currentCurrency}`;
                     }
                 } else {
-                    let calculatedValue = data.price;
-                    let currentSymbol = currencySymbols[currentCurrency];
-                    
-                    if (key === 'ibex35') {
-                        calculatedValue = data.price; 
-                        currentSymbol = '€';          
-                    } else {
-                        if (asset.nativeCurrency === 'USD' && currentCurrency === 'EUR') {
-                            calculatedValue = data.price / eurToUsd; 
-                        } else if (asset.nativeCurrency === 'EUR' && currentCurrency === 'USD') {
-                            calculatedValue = data.price * eurToUsd; 
-                        }
-                    }
+                    let calculatedValue = convertCurrency(data.price, asset.nativeCurrency || currentCurrency, currentCurrency);
 
-                    priceDisplay = `${lockPrefix}${formatSpanishNumber(calculatedValue)} ${currentSymbol}`;
+                    priceDisplay = `${lockPrefix}${formatSpanishNumber(calculatedValue)} ${currentCurrency}`;
                 }
 
                 let futureHtml = '';
                 if (asset.isUSMarket && nyClosed) {
                     let futureValue = data.price * 1.0006; 
                     let calculatedFuture = futureValue;
-                    let currentFutureSymbol = currencySymbols[currentCurrency];
-
-                    if (asset.nativeCurrency === 'USD' && currentCurrency === 'EUR') {
-                        calculatedFuture = futureValue / eurToUsd;
-                    }
-                    futureHtml = `<div class="card-future">Futuro: ${formatSpanishNumber(calculatedFuture)} ${currentFutureSymbol}</div>`;
+                    calculatedFuture = convertCurrency(futureValue, asset.nativeCurrency || currentCurrency, currentCurrency);
+                    futureHtml = `<div class="card-future">Futuro: ${formatSpanishNumber(calculatedFuture)} ${currentCurrency}</div>`;
                 }
 
                 const updateHtml = `<div class="card-meta">Act: ${formatUpdateTime(data.updatedAt)}</div>`;
@@ -926,16 +944,19 @@
         }
 
         function renderSettings() {
-            ['EUR', 'USD'].forEach(curr => {
-                const btn = document.getElementById(`btn-curr-${curr}`);
-                if (btn) {
-                    if (curr === currentCurrency) {
-                        btn.classList.add('active');
-                    } else {
-                        btn.classList.remove('active');
-                    }
-                }
-            });
+            const currencyContainer = document.querySelector('.currency-selectors');
+            if (currencyContainer) {
+                currencyContainer.innerHTML = '';
+                Object.keys(currencySymbols).forEach(curr => {
+                    const activeClass = curr === currentCurrency ? ' active' : '';
+                    const buttonHtml = `
+                        <button onclick="setCurrency('${curr}')" id="btn-curr-${curr}" class="btn-currency${activeClass}">
+                            ${curr} (${currencySymbols[curr]})
+                        </button>
+                    `;
+                    currencyContainer.insertAdjacentHTML('beforeend', buttonHtml);
+                });
+            }
 
             const tbody = document.getElementById('etf-table-body');
             if (tbody) {
@@ -1031,6 +1052,9 @@
                     currentCurrency = savedCurr;
                 } else {
                     currentCurrency = 'USD'; 
+                }
+                if (!currencySymbols[currentCurrency]) {
+                    currentCurrency = 'USD';
                 }
                 
                 if (savedSelected) {
@@ -1130,6 +1154,9 @@
             const timeframeEl = document.getElementById('chart-timeframe');
             const timeframe = timeframeEl ? timeframeEl.value : 'month';
             const currentPrice = activePrices[key]?.price || asset.base;
+            const chartBasePrice = (asset.isYield || asset.isForex)
+                ? currentPrice
+                : convertCurrency(currentPrice, asset.nativeCurrency || currentCurrency, currentCurrency);
             
             let labels = [];
             let data = [];
@@ -1141,7 +1168,9 @@
 
                 if (response.ok && history && Array.isArray(history.points) && history.points.length > 1) {
                     labels = history.points.map(point => formatHistoryLabel(point.timestamp, timeframe));
-                    data = history.points.map(point => point.close);
+                    data = history.points.map(point => (asset.isYield || asset.isForex)
+                        ? point.close
+                        : convertCurrency(point.close, asset.nativeCurrency || currentCurrency, currentCurrency));
                     usedRealData = true;
                 }
             } catch (error) {
@@ -1155,7 +1184,7 @@
                     d.setHours(d.getHours() - i, 0, 0, 0);
                     labels.push(d.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }));
                 }
-                data = simulateTrend(currentPrice, hours + 1, 0.006);
+                data = simulateTrend(chartBasePrice, hours + 1, 0.006);
             } else if (!usedRealData && timeframe === 'week') {
                 const days = 7;
                 for (let i = days; i >= 0; i--) {
@@ -1163,7 +1192,7 @@
                     d.setDate(d.getDate() - i);
                     labels.push(d.toLocaleDateString('es-ES', { weekday: 'short', day: '2-digit' }));
                 }
-                data = simulateTrend(currentPrice, days + 1, 0.012);
+                data = simulateTrend(chartBasePrice, days + 1, 0.012);
             } else if (!usedRealData && timeframe === 'month') {
                 const days = 30;
                 for (let i = days; i >= 0; i--) {
@@ -1171,24 +1200,23 @@
                     d.setDate(d.getDate() - i);
                     labels.push(d.toLocaleDateString('es-ES', { day: '2-digit', month: 'short' }));
                 }
-                data = simulateTrend(currentPrice, days + 1, 0.02);
+                data = simulateTrend(chartBasePrice, days + 1, 0.02);
             } else if (!usedRealData && timeframe === 'year') {
                 const months = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
                 const currentMonthIdx = new Date().getMonth();
                 for (let i = 0; i <= currentMonthIdx; i++) {
                     labels.push(months[i]);
                 }
-                data = simulateTrend(currentPrice, labels.length, 0.06);
+                data = simulateTrend(chartBasePrice, labels.length, 0.06);
             } else if (!usedRealData && timeframe === '5years') {
                 const currentYear = new Date().getFullYear();
                 for (let i = 4; i >= 0; i--) {
                     labels.push(currentYear - i);
                 }
-                data = simulateTrend(currentPrice, 5, 0.15);
+                data = simulateTrend(chartBasePrice, 5, 0.15);
             }
 
-            let unitToDisplay = asset.isYield ? '%' : currencySymbols[currentCurrency];
-            if (key === 'ibex35') unitToDisplay = '€';
+            let unitToDisplay = asset.isYield ? '%' : currentCurrency;
             if (asset.isForex) unitToDisplay = ''; 
 
             renderChart(labels, data, unitToDisplay);
