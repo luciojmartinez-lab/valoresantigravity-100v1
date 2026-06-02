@@ -562,6 +562,8 @@
             <div class="modal-controls">
                 <span>Periodo:</span>
                 <select id="chart-timeframe" onchange="updateChartData()" class="modal-select">
+                    <option value="day">Día</option>
+                    <option value="week">Semana</option>
                     <option value="month">Último mes</option>
                     <option value="year">Año actual</option>
                     <option value="5years">Últimos 5 años</option>
@@ -1041,7 +1043,7 @@
             if (modalTitleEl) modalTitleEl.innerText = asset.name;
             
             const timeframeEl = document.getElementById('chart-timeframe');
-            if (timeframeEl) timeframeEl.value = 'month';
+            if (timeframeEl) timeframeEl.value = 'day';
             
             const modalEl = document.getElementById('chart-modal');
             if (modalEl) modalEl.classList.remove('hidden');
@@ -1071,7 +1073,23 @@
             let labels = [];
             let data = [];
             
-            if (timeframe === 'month') {
+            if (timeframe === 'day') {
+                const hours = 12;
+                for (let i = hours; i >= 0; i--) {
+                    const d = new Date();
+                    d.setHours(d.getHours() - i, 0, 0, 0);
+                    labels.push(d.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }));
+                }
+                data = simulateTrend(currentPrice, hours + 1, 0.006);
+            } else if (timeframe === 'week') {
+                const days = 7;
+                for (let i = days; i >= 0; i--) {
+                    const d = new Date();
+                    d.setDate(d.getDate() - i);
+                    labels.push(d.toLocaleDateString('es-ES', { weekday: 'short', day: '2-digit' }));
+                }
+                data = simulateTrend(currentPrice, days + 1, 0.012);
+            } else if (timeframe === 'month') {
                 const days = 30;
                 for (let i = days; i >= 0; i--) {
                     const d = new Date();
