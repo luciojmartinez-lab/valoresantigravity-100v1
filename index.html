@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Consulta de Valores por Lucio J, Martinez 100v4</title>
+    <title>Consulta de Valores por Lucio J, Martinez 100v5</title>
     <!-- Chart.js para los gráficos interactivos -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
@@ -186,7 +186,17 @@
             width: 128px !important; /* EE.UU. más ancho para que quepa "Años" */
         }
         #col-wrapper-3 {
-            width: 135px !important; /* España más ancho */
+            width: 150px !important;
+        }
+        #col-3 .value-card {
+            min-height: 78px;
+        }
+        #col-3 .card-title {
+            font-size: 8px;
+            line-height: 1.05;
+        }
+        #col-3 .card-price {
+            font-size: 9.5px;
         }
 
         .col-header {
@@ -456,7 +466,7 @@
                     <span id="refresh-timer">--:--</span>
                 </span>
             </div>
-            <span class="version-badge">100v4</span>
+            <span class="version-badge">100v5</span>
         </div>
         <div class="navbar-row-menu">
             <button onclick="switchScreen('welcome')" id="nav-welcome" class="nav-item">Inicio</button>
@@ -472,7 +482,7 @@
             <div class="welcome-card">
                 <span class="welcome-icon">📈</span>
                 <h1 class="welcome-title">Consulta de Valores</h1>
-                <p class="welcome-author">Por Lucio J, Martinez 100v4</p>
+                <p class="welcome-author">Por Lucio J, Martinez 100v5</p>
                 
                 <div class="welcome-time-box">
                     <p id="welcome-date" class="welcome-date">-- de -- de ----</p>
@@ -635,13 +645,13 @@
             nasdaq: { name: "Nasdaq 100", ticker: "^NDX", base: 29994.00, col: 3, nativeCurrency: 'USD', isUSMarket: true, change: 0 },  
             dowjones: { name: "Dow Jones", ticker: "^DJI", base: 50461.68, col: 3, nativeCurrency: 'USD', isUSMarket: true, change: 0 }, 
             dolareuro: { name: "Dólar/Euro", ticker: "USDEUR=X", base: 0.8620, col: 3, isForex: true, baseCurrency: 'USD', quoteCurrency: 'EUR', change: 0 },     
-            eurosek: { name: "Euro/Corona Sueca", ticker: "EURSEK=X", base: 10.83, col: 3, isForex: true, baseCurrency: 'EUR', quoteCurrency: 'SEK', change: 0 },
-            euronok: { name: "Euro/Corona Noruega", ticker: "EURNOK=X", base: 10.80, col: 3, isForex: true, baseCurrency: 'EUR', quoteCurrency: 'NOK', change: 0 },
-            eurodkk: { name: "Euro/Corona Danesa", ticker: "EURDKK=X", base: 7.47, col: 3, isForex: true, baseCurrency: 'EUR', quoteCurrency: 'DKK', change: 0 },
-            europln: { name: "Euro/Zloty Polaco", ticker: "EURPLN=X", base: 4.23, col: 3, isForex: true, baseCurrency: 'EUR', quoteCurrency: 'PLN', change: 0 },
-            eurogbp: { name: "Euro/Libra Esterlina", ticker: "EURGBP=X", base: 0.86, col: 3, isForex: true, baseCurrency: 'EUR', quoteCurrency: 'GBP', change: 0 },
-            eurojpy: { name: "Euro/Yen Japones", ticker: "EURJPY=X", base: 186.00, col: 3, isForex: true, baseCurrency: 'EUR', quoteCurrency: 'JPY', change: 0 },
-            eurokrw: { name: "Euro/Won Coreano", ticker: "EURKRW=X", base: 1764.00, col: 3, isForex: true, baseCurrency: 'EUR', quoteCurrency: 'KRW', change: 0 },
+            eurosek: { name: "EUR/SEK", ticker: "EURSEK=X", base: 10.83, col: 3, isForex: true, baseCurrency: 'EUR', quoteCurrency: 'SEK', change: 0 },
+            euronok: { name: "EUR/NOK", ticker: "EURNOK=X", base: 10.80, col: 3, isForex: true, baseCurrency: 'EUR', quoteCurrency: 'NOK', change: 0 },
+            eurodkk: { name: "EUR/DKK", ticker: "EURDKK=X", base: 7.47, col: 3, isForex: true, baseCurrency: 'EUR', quoteCurrency: 'DKK', change: 0 },
+            europln: { name: "EUR/PLN", ticker: "EURPLN=X", base: 4.23, col: 3, isForex: true, baseCurrency: 'EUR', quoteCurrency: 'PLN', change: 0 },
+            eurogbp: { name: "EUR/GBP", ticker: "EURGBP=X", base: 0.86, col: 3, isForex: true, baseCurrency: 'EUR', quoteCurrency: 'GBP', change: 0 },
+            eurojpy: { name: "EUR/JPY", ticker: "EURJPY=X", base: 186.00, col: 3, isForex: true, baseCurrency: 'EUR', quoteCurrency: 'JPY', change: 0 },
+            eurokrw: { name: "EUR/KRW", ticker: "EURKRW=X", base: 1764.00, col: 3, isForex: true, baseCurrency: 'EUR', quoteCurrency: 'KRW', change: 0 },
 
             voo: { name: "VOO (S&P 500)", ticker: "VOO", base: 626.00, col: 4, category: 'etf', nativeCurrency: 'USD', isUSMarket: true, desc: "Vanguard S&P 500, uno de los mayores ETFs por patrimonio", change: 0 },
             ivv: { name: "IVV (S&P 500)", ticker: "IVV", base: 684.00, col: 4, category: 'etf', nativeCurrency: 'USD', isUSMarket: true, desc: "iShares Core S&P 500, alternativa grande y eficiente", change: 0 },
