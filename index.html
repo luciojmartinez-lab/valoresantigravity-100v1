@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Consulta de Valores por Lucio J, Martinez 100v5</title>
+    <title>Consulta de Valores por Lucio J, Martinez 100v6</title>
     <!-- Chart.js para los gráficos interactivos -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
@@ -215,7 +215,7 @@
         .col-content {
             flex: 1;
             overflow-y: auto;
-            padding: 4px;
+            padding: 4px 4px calc(72px + env(safe-area-inset-bottom, 0px)) 4px;
             display: flex;
             flex-direction: column;
             gap: 4px;
@@ -365,6 +365,9 @@
                 font-size: 11px;
                 padding: 10px;
             }
+            .col-content {
+                padding-bottom: 8px;
+            }
             .value-card {
                 padding: 8px 10px;
                 min-height: 85px;
@@ -466,7 +469,7 @@
                     <span id="refresh-timer">--:--</span>
                 </span>
             </div>
-            <span class="version-badge">100v5</span>
+            <span class="version-badge">100v6</span>
         </div>
         <div class="navbar-row-menu">
             <button onclick="switchScreen('welcome')" id="nav-welcome" class="nav-item">Inicio</button>
@@ -482,7 +485,7 @@
             <div class="welcome-card">
                 <span class="welcome-icon">📈</span>
                 <h1 class="welcome-title">Consulta de Valores</h1>
-                <p class="welcome-author">Por Lucio J, Martinez 100v5</p>
+                <p class="welcome-author">Por Lucio J, Martinez 100v6</p>
                 
                 <div class="welcome-time-box">
                     <p id="welcome-date" class="welcome-date">-- de -- de ----</p>
