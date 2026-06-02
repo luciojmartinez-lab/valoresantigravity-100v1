@@ -279,6 +279,16 @@
             white-space: nowrap;
         }
 
+        .card-meta {
+            color: var(--text-muted);
+            font-size: 7.5px;
+            font-weight: 600;
+            margin-top: 1px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
         .card-actions {
             display: flex;
             gap: 3px;
@@ -353,6 +363,9 @@
             }
             .card-future {
                 font-size: 10px;
+            }
+            .card-meta {
+                font-size: 9px;
             }
             .btn-action {
                 padding: 4px;
@@ -478,17 +491,17 @@
                     </div>
 
                     <div id="col-wrapper-3" class="grid-col">
-                        <div class="col-header">RF España & IBEX</div>
+                        <div class="col-header">Indices & Divisas</div>
                         <div id="col-3" class="col-content"></div>
                     </div>
 
                     <div class="grid-col">
-                        <div class="col-header">Índices & Divisas</div>
+                        <div class="col-header">ETFs Opcionales</div>
                         <div id="col-4" class="col-content"></div>
                     </div>
 
                     <div class="grid-col">
-                        <div class="col-header">ETFs Opcionales</div>
+                        <div class="col-header">Espana</div>
                         <div id="col-5" class="col-content"></div>
                     </div>
 
@@ -511,7 +524,7 @@
 
                 <div class="settings-section">
                     <h3>Selección de ETFs Opcionales</h3>
-                    <p>Marca los ETFs que se visualizarán en la quinta columna:</p>
+                    <p>Marca los ETFs que se visualizaran en la columna opcional:</p>
                     
                     <div class="table-scroll-container">
                         <table class="etf-table">
@@ -600,32 +613,32 @@
             letrasUS10A: { name: "EE.UU. - 10 Años", ticker: "^TNX", base: 4.18, col: 2, isYield: true, change: 0 },
             letrasUS30A: { name: "EE.UU. - 30 Años", ticker: "^TYX", base: 4.35, col: 2, isYield: true, change: 0 },
 
-            letrasES12M: { name: "España - 12 Meses", ticker: "ES1Y.P", base: 3.50, col: 3, isYield: true, change: 0 },
-            letrasES3A: { name: "España - 3 Años", ticker: "ES3Y.P", base: 3.10, col: 3, isYield: true, change: 0 },
-            letrasES5A: { name: "España - 5 Años", ticker: "ES5Y.P", base: 3.25, col: 3, isYield: true, change: 0 },
-            letrasES10A: { name: "España - 10 Años", ticker: "ES10YT=X", base: 3.42, col: 3, isYield: true, change: 0 },
-            ibex35: { name: "IBEX 35", ticker: "^IBEX", base: 18290.90, col: 3, nativeCurrency: 'EUR', change: 0 }, 
+            ibex35: { name: "IBEX 35", ticker: "^IBEX", base: 18290.90, col: 5, nativeCurrency: 'EUR', change: 0 }, 
 
-            sp500: { name: "S&P 500", ticker: "^GSPC", base: 7519.12, col: 4, nativeCurrency: 'USD', isUSMarket: true, change: 0 },      
-            nasdaq: { name: "Nasdaq 100", ticker: "^NDX", base: 29994.00, col: 4, nativeCurrency: 'USD', isUSMarket: true, change: 0 },  
-            dowjones: { name: "Dow Jones", ticker: "^DJI", base: 50461.68, col: 4, nativeCurrency: 'USD', isUSMarket: true, change: 0 }, 
-            dolareuro: { name: "Dólar/Euro", ticker: "USDEUR=X", base: 0.8620, col: 4, isForex: true, change: 0 },     
+            sp500: { name: "S&P 500", ticker: "^GSPC", base: 7519.12, col: 3, nativeCurrency: 'USD', isUSMarket: true, change: 0 },      
+            nasdaq: { name: "Nasdaq 100", ticker: "^NDX", base: 29994.00, col: 3, nativeCurrency: 'USD', isUSMarket: true, change: 0 },  
+            dowjones: { name: "Dow Jones", ticker: "^DJI", base: 50461.68, col: 3, nativeCurrency: 'USD', isUSMarket: true, change: 0 }, 
+            dolareuro: { name: "Dólar/Euro", ticker: "USDEUR=X", base: 0.8620, col: 3, isForex: true, change: 0 },     
 
-            spy: { name: "SPY (S&P 500)", ticker: "SPY", base: 751.91, col: 5, category: 'etf', nativeCurrency: 'USD', isUSMarket: true, desc: "Fondo que replica el índice S&P 500", change: 0 },
-            qqq: { name: "QQQ (Nasdaq 100)", ticker: "QQQ", base: 445.00, col: 5, category: 'etf', nativeCurrency: 'USD', isUSMarket: true, desc: "Fondo enfocado en tecnología", change: 0 },
-            dia: { name: "DIA (Dow Jones)", ticker: "DIA", base: 504.61, col: 5, category: 'etf', nativeCurrency: 'USD', isUSMarket: true, desc: "Replica el índice de las 30 industriales", change: 0 },
-            iwm: { name: "IWM (Russell)", ticker: "IWM", base: 215.00, col: 5, category: 'etf', nativeCurrency: 'USD', isUSMarket: true, desc: "Invierte en pequeña capitalización de EE.UU.", change: 0 },
-            eem: { name: "EEM (Emergentes)", ticker: "EEM", base: 43.20, col: 5, category: 'etf', nativeCurrency: 'USD', isUSMarket: true, desc: "Acciones de mercados emergentes globales", change: 0 },
-            gld: { name: "GLD (Fondo Oro)", ticker: "GLD", base: 416.40, col: 5, category: 'etf', nativeCurrency: 'USD', isUSMarket: true, desc: "Fondo respaldado por reservas de oro físico", change: 0 },
-            slv: { name: "SLV (Fondo Plata)", ticker: "SLV", base: 71.30, col: 5, category: 'etf', nativeCurrency: 'USD', isUSMarket: true, desc: "Fondo respaldado por reservas de plata física", change: 0 },
-            vti: { name: "VTI (Mercado Total)", ticker: "VTI", base: 260.00, col: 5, category: 'etf', nativeCurrency: 'USD', isUSMarket: true, desc: "Cubre la totalidad de acciones de EE.UU.", change: 0 },
-            tlt: { name: "TLT (Bonos 20A+)", ticker: "TLT", base: 92.50, col: 5, category: 'etf', nativeCurrency: 'USD', isUSMarket: true, desc: "Bonos del tesoro estadounidense a largo plazo", change: 0 },
-            arkk: { name: "ARKK (Innovación)", ticker: "ARKK", base: 49.10, col: 5, category: 'etf', nativeCurrency: 'USD', isUSMarket: true, desc: "Gestión de innovación tecnológica disruptiva", change: 0 },
-            uso: { name: "USO (Fondo Petróleo)", ticker: "USO", base: 78.50, col: 5, category: 'etf', nativeCurrency: 'USD', isUSMarket: true, desc: "Fondo indexado al precio del crudo ligero WTI", change: 0 }
+            voo: { name: "VOO (S&P 500)", ticker: "VOO", base: 626.00, col: 4, category: 'etf', nativeCurrency: 'USD', isUSMarket: true, desc: "Vanguard S&P 500, uno de los mayores ETFs por patrimonio", change: 0 },
+            ivv: { name: "IVV (S&P 500)", ticker: "IVV", base: 684.00, col: 4, category: 'etf', nativeCurrency: 'USD', isUSMarket: true, desc: "iShares Core S&P 500, alternativa grande y eficiente", change: 0 },
+            spy: { name: "SPY (S&P 500)", ticker: "SPY", base: 681.00, col: 4, category: 'etf', nativeCurrency: 'USD', isUSMarket: true, desc: "SPDR S&P 500, referencia muy liquida para trading", change: 0 },
+            vti: { name: "VTI (Mercado Total)", ticker: "VTI", base: 336.00, col: 4, category: 'etf', nativeCurrency: 'USD', isUSMarket: true, desc: "Vanguard Total Stock Market, mercado estadounidense amplio", change: 0 },
+            qqq: { name: "QQQ (Nasdaq 100)", ticker: "QQQ", base: 609.00, col: 4, category: 'etf', nativeCurrency: 'USD', isUSMarket: true, desc: "Invesco QQQ, grandes tecnológicas del Nasdaq", change: 0 },
+            vea: { name: "VEA (Desarrollados)", ticker: "VEA", base: 66.00, col: 4, category: 'etf', nativeCurrency: 'USD', isUSMarket: true, desc: "Vanguard FTSE Developed Markets, bolsa internacional desarrollada", change: 0 },
+            vwo: { name: "VWO (Emergentes)", ticker: "VWO", base: 48.00, col: 4, category: 'etf', nativeCurrency: 'USD', isUSMarket: true, desc: "Vanguard FTSE Emerging Markets, mercados emergentes", change: 0 },
+            agg: { name: "AGG (Bonos USA)", ticker: "AGG", base: 99.00, col: 4, category: 'etf', nativeCurrency: 'USD', isUSMarket: true, desc: "iShares Core U.S. Aggregate Bond, bonos diversificados", change: 0 },
+            bnd: { name: "BND (Bonos Total)", ticker: "BND", base: 73.00, col: 4, category: 'etf', nativeCurrency: 'USD', isUSMarket: true, desc: "Vanguard Total Bond Market, renta fija estadounidense", change: 0 },
+            gld: { name: "GLD (Oro)", ticker: "GLD", base: 466.00, col: 4, category: 'etf', nativeCurrency: 'USD', isUSMarket: true, desc: "SPDR Gold Shares, exposición popular al oro", change: 0 },
+            vug: { name: "VUG (Growth)", ticker: "VUG", base: 464.00, col: 4, category: 'etf', nativeCurrency: 'USD', isUSMarket: true, desc: "Vanguard Growth, acciones estadounidenses de crecimiento", change: 0 },
+            vtv: { name: "VTV (Value)", ticker: "VTV", base: 202.00, col: 4, category: 'etf', nativeCurrency: 'USD', isUSMarket: true, desc: "Vanguard Value, acciones estadounidenses de valor", change: 0 },
+            schd: { name: "SCHD (Dividendos)", ticker: "SCHD", base: 28.00, col: 4, category: 'etf', nativeCurrency: 'USD', isUSMarket: true, desc: "Schwab U.S. Dividend Equity, dividendos de calidad", change: 0 },
+            tlt: { name: "TLT (Bonos 20A+)", ticker: "TLT", base: 92.50, col: 4, category: 'etf', nativeCurrency: 'USD', isUSMarket: true, desc: "Bonos del Tesoro estadounidense a largo plazo", change: 0 }
         };
 
-        let selectedETFs = ['spy', 'qqq', 'gld'];
+        let selectedETFs = ['voo', 'spy', 'qqq'];
         let activePrices = {};
+        let currentScreen = 'welcome';
 
         // INICIALIZACIÓN
         window.addEventListener('DOMContentLoaded', () => {
@@ -634,7 +647,7 @@
             generatePricesIfEmpty();
             renderDashboard();
             renderSettings();
-            switchScreen('welcome');
+            switchScreen(currentScreen || 'welcome');
 
             // Solicitud de datos reales al iniciar la app
             fetchRealMarketData();
@@ -701,6 +714,9 @@
                             activePrices[localKey].change = typeof quote.regularMarketChangePercent === 'number'
                                 ? quote.regularMarketChangePercent
                                 : activePrices[localKey].change;
+                            activePrices[localKey].updatedAt = quote.regularMarketTime
+                                ? quote.regularMarketTime * 1000
+                                : Date.now();
                             updatedCount++;
                         }
                     });
@@ -781,12 +797,22 @@
             return sign + parts.join(',');
         }
 
+        function formatUpdateTime(timestamp) {
+            if (!timestamp) return 'Pendiente';
+            try {
+                return new Date(timestamp).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+            } catch (e) {
+                return 'Pendiente';
+            }
+        }
+
         function generatePricesIfEmpty() {
             for (const key in assetDatabase) {
                 if(!activePrices[key]) {
                     activePrices[key] = {
                         price: assetDatabase[key].base,
-                        change: assetDatabase[key].change
+                        change: assetDatabase[key].change,
+                        updatedAt: null
                     };
                 }
             }
@@ -854,6 +880,8 @@
                     futureHtml = `<div class="card-future">Futuro: ${formatSpanishNumber(calculatedFuture)} ${currentFutureSymbol}</div>`;
                 }
 
+                const updateHtml = `<div class="card-meta">Act: ${formatUpdateTime(data.updatedAt)}</div>`;
+
                 const cardHtml = `
                     <div class="value-card">
                         <div class="card-top">
@@ -864,6 +892,7 @@
                         </div>
                         <div class="card-price">${priceDisplay}</div>
                         ${futureHtml}
+                        ${updateHtml}
                         <div class="card-actions">
                             <button onclick="updateAssetPrice('${key}')" class="btn-action" title="Actualizar Datos Reales Ahora">
                                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.21 15H19M9 5a9 9 0 010 18v-5h-.582m-15.356-2A8.001 8.001 0 112.79 9H5"></path></svg>
@@ -936,7 +965,8 @@
         function exportBackup() {
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({
                 currentCurrency,
-                selectedETFs
+                selectedETFs,
+                currentScreen
             }));
             const downloadAnchor = document.createElement('a');
             downloadAnchor.setAttribute("href", dataStr);
@@ -953,10 +983,12 @@
                     const parsed = JSON.parse(e.target.result);
                     if (parsed.currentCurrency) currentCurrency = parsed.currentCurrency;
                     if (parsed.selectedETFs) selectedETFs = parsed.selectedETFs;
+                    if (parsed.currentScreen) currentScreen = parsed.currentScreen;
                     
                     saveLocalStorage();
                     renderDashboard();
                     renderSettings();
+                    switchScreen(currentScreen || 'welcome');
                     alert("Copia de seguridad importada con éxito.");
                 } catch (err) {
                     alert("Error al procesar el archivo.");
@@ -969,6 +1001,7 @@
             try {
                 localStorage.setItem('val_100v13_currency', currentCurrency);
                 localStorage.setItem('val_100v13_selected_etfs', JSON.stringify(selectedETFs));
+                localStorage.setItem('val_100v13_current_screen', currentScreen);
             } catch (e) {}
         }
 
@@ -976,6 +1009,7 @@
             try {
                 const savedCurr = localStorage.getItem('val_100v13_currency');
                 const savedSelected = localStorage.getItem('val_100v13_selected_etfs');
+                const savedScreen = localStorage.getItem('val_100v13_current_screen');
 
                 if (savedCurr) {
                     currentCurrency = savedCurr;
@@ -986,9 +1020,17 @@
                 if (savedSelected) {
                     selectedETFs = JSON.parse(savedSelected);
                 }
+                selectedETFs = selectedETFs.filter(key => assetDatabase[key]);
+                if (selectedETFs.length === 0) {
+                    selectedETFs = ['voo', 'spy', 'qqq'];
+                }
+                if (['welcome', 'dashboard', 'settings'].includes(savedScreen)) {
+                    currentScreen = savedScreen;
+                }
             } catch (e) {
                 currentCurrency = 'USD'; 
-                selectedETFs = ['spy', 'qqq', 'gld'];
+                selectedETFs = ['voo', 'spy', 'qqq'];
+                currentScreen = 'welcome';
             }
         }
 
@@ -1006,6 +1048,9 @@
         }
 
         function switchScreen(screenId) {
+            currentScreen = ['welcome', 'dashboard', 'settings'].includes(screenId) ? screenId : 'welcome';
+            saveLocalStorage();
+
             const screenWelcome = document.getElementById('screen-welcome');
             const screenDashboard = document.getElementById('screen-dashboard');
             const screenSettings = document.getElementById('screen-settings');
@@ -1022,13 +1067,13 @@
             if (navDashboard) navDashboard.classList.remove('active');
             if (navSettings) navSettings.classList.remove('active');
 
-            const activeScreen = document.getElementById(`screen-${screenId}`);
+            const activeScreen = document.getElementById(`screen-${currentScreen}`);
             if (activeScreen) activeScreen.classList.remove('hidden');
             
-            if (screenId === 'settings') {
+            if (currentScreen === 'settings') {
                 if (navSettings) navSettings.classList.add('active');
             } else {
-                const activeNav = document.getElementById(`nav-${screenId}`);
+                const activeNav = document.getElementById(`nav-${currentScreen}`);
                 if (activeNav) activeNav.classList.add('active');
             }
         }
@@ -1061,7 +1106,7 @@
             }
         }
 
-        function updateChartData() {
+        async function updateChartData() {
             const key = selectedAssetForChart;
             const asset = assetDatabase[key];
             if (!asset) return;
@@ -1072,8 +1117,22 @@
             
             let labels = [];
             let data = [];
+            let usedRealData = false;
+
+            try {
+                const response = await fetch(`/.netlify/functions/history?symbol=${encodeURIComponent(asset.ticker)}&timeframe=${encodeURIComponent(timeframe)}`);
+                const history = await response.json();
+
+                if (response.ok && history && Array.isArray(history.points) && history.points.length > 1) {
+                    labels = history.points.map(point => formatHistoryLabel(point.timestamp, timeframe));
+                    data = history.points.map(point => point.close);
+                    usedRealData = true;
+                }
+            } catch (error) {
+                console.error("No se pudo obtener historico real.", error);
+            }
             
-            if (timeframe === 'day') {
+            if (!usedRealData && timeframe === 'day') {
                 const hours = 12;
                 for (let i = hours; i >= 0; i--) {
                     const d = new Date();
@@ -1081,7 +1140,7 @@
                     labels.push(d.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }));
                 }
                 data = simulateTrend(currentPrice, hours + 1, 0.006);
-            } else if (timeframe === 'week') {
+            } else if (!usedRealData && timeframe === 'week') {
                 const days = 7;
                 for (let i = days; i >= 0; i--) {
                     const d = new Date();
@@ -1089,7 +1148,7 @@
                     labels.push(d.toLocaleDateString('es-ES', { weekday: 'short', day: '2-digit' }));
                 }
                 data = simulateTrend(currentPrice, days + 1, 0.012);
-            } else if (timeframe === 'month') {
+            } else if (!usedRealData && timeframe === 'month') {
                 const days = 30;
                 for (let i = days; i >= 0; i--) {
                     const d = new Date();
@@ -1097,14 +1156,14 @@
                     labels.push(d.toLocaleDateString('es-ES', { day: '2-digit', month: 'short' }));
                 }
                 data = simulateTrend(currentPrice, days + 1, 0.02);
-            } else if (timeframe === 'year') {
+            } else if (!usedRealData && timeframe === 'year') {
                 const months = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
                 const currentMonthIdx = new Date().getMonth();
                 for (let i = 0; i <= currentMonthIdx; i++) {
                     labels.push(months[i]);
                 }
                 data = simulateTrend(currentPrice, labels.length, 0.06);
-            } else if (timeframe === '5years') {
+            } else if (!usedRealData && timeframe === '5years') {
                 const currentYear = new Date().getFullYear();
                 for (let i = 4; i >= 0; i--) {
                     labels.push(currentYear - i);
@@ -1117,6 +1176,21 @@
             if (asset.isForex) unitToDisplay = ''; 
 
             renderChart(labels, data, unitToDisplay);
+        }
+
+        function formatHistoryLabel(timestamp, timeframe) {
+            const date = new Date(timestamp * 1000);
+
+            if (timeframe === 'day') {
+                return date.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+            }
+            if (timeframe === 'week') {
+                return date.toLocaleDateString('es-ES', { weekday: 'short', day: '2-digit' });
+            }
+            if (timeframe === 'year' || timeframe === '5years') {
+                return date.toLocaleDateString('es-ES', { month: 'short', year: '2-digit' });
+            }
+            return date.toLocaleDateString('es-ES', { day: '2-digit', month: 'short' });
         }
 
         function simulateTrend(targetPrice, steps, volatility) {
@@ -1136,6 +1210,12 @@
                 chartInstance.destroy();
             }
 
+            const firstValue = data && data.length ? data[0] : 0;
+            const lastValue = data && data.length ? data[data.length - 1] : firstValue;
+            const isChartUp = lastValue >= firstValue;
+            const lineColor = isChartUp ? '#10b981' : '#ef4444';
+            const fillColor = isChartUp ? 'rgba(16, 185, 129, 0.08)' : 'rgba(239, 68, 68, 0.08)';
+
             chartInstance = new Chart(ctx, {
                 type: 'line',
                 data: {
@@ -1143,8 +1223,8 @@
                     datasets: [{
                         label: 'Cotización',
                         data: data,
-                        borderColor: '#1976d2',
-                        backgroundColor: 'rgba(25, 118, 210, 0.05)',
+                        borderColor: lineColor,
+                        backgroundColor: fillColor,
                         borderWidth: 2,
                         fill: true,
                         tension: 0.15,
