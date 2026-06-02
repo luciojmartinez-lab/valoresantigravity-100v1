@@ -583,6 +583,7 @@
         // CRONÓMETRO DE ACTUALIZACIÓN
         let countdownSeconds = 300; // 5 minutos exactos
         let countdownTimerId = null;
+        let lastMarketMessage = 'Pendiente';
 
         // Base de Datos Estructural (Tickers reales para la conexión)
         const assetDatabase = {
@@ -661,7 +662,7 @@
             const sec = countdownSeconds % 60;
             const timeString = `${min}:${sec < 10 ? '0' : ''}${sec}`;
             const el = document.getElementById('refresh-timer');
-            if (el) el.innerText = `Próx. act: ${timeString}`;
+            if (el) el.innerText = `${lastMarketMessage} | ${timeString}`;
         }
 
         // -----------------------------------------------------------------
@@ -677,28 +678,48 @@
                 const response = await fetch(targetUrl);
                 const data = await response.json();
 
-                if(data && data.quoteResponse && data.quoteResponse.result) {
+                if (!response.ok) {
+                    throw new Error(data && data.message ? data.message : `HTTP ${response.status}`);
+                }
+
+                if(data && data.quoteResponse && Array.isArray(data.quoteResponse.result)) {
                     
                     const eurusdQuote = data.quoteResponse.result.find(q => q.symbol === 'EURUSD=X');
-                    if (eurusdQuote && eurusdQuote.regularMarketPrice) {
+                    if (eurusdQuote && typeof eurusdQuote.regularMarketPrice === 'number') {
                         eurToUsd = eurusdQuote.regularMarketPrice;
                     }
+
+                    let updatedCount = 0;
 
                     data.quoteResponse.result.forEach(quote => {
                         const localKey = Object.keys(assetDatabase).find(key => assetDatabase[key].ticker === quote.symbol);
                         
-                        if(localKey && activePrices[localKey] && quote.regularMarketPrice) {
+                        if(localKey && activePrices[localKey] && typeof quote.regularMarketPrice === 'number') {
                             activePrices[localKey].price = quote.regularMarketPrice;
-                            activePrices[localKey].change = quote.regularMarketChangePercent;
+                            activePrices[localKey].change = typeof quote.regularMarketChangePercent === 'number'
+                                ? quote.regularMarketChangePercent
+                                : activePrices[localKey].change;
+                            updatedCount++;
                         }
                     });
+
+                    if (updatedCount === 0) {
+                        throw new Error('La API no devolvio cotizaciones validas');
+                    }
+
+                    const nowText = new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+                    const failedCount = Array.isArray(data.errors) ? data.errors.length : 0;
+                    lastMarketMessage = failedCount > 0 ? `Parcial ${nowText}` : `OK ${nowText}`;
 
                     saveLocalStorage();
                     renderDashboard();
                     triggerFlashEffect();
+                } else {
+                    throw new Error('Respuesta de cotizaciones no valida');
                 }
             } catch (error) {
-                console.error("No se pudieron obtener datos reales, la API gratuita puede estar saturada.", error);
+                lastMarketMessage = 'Error datos';
+                console.error("No se pudieron obtener datos reales.", error);
             } finally {
                 // Haya funcionado o fallado, volvemos a iniciar la cuenta atrás de 5 minutos
                 startCountdown();
