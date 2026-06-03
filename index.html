@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Consulta de Valores por Lucio J, Martinez 100v7</title>
+    <title>Consulta de Valores por Lucio J, Martinez 100v8</title>
     <!-- Chart.js para los gráficos interactivos -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
@@ -466,6 +466,8 @@
         .modal-close { background: none; border: none; font-size: 18px; font-weight: 700; color: var(--text-muted); cursor: pointer; }
         .modal-controls { padding: 6px 14px; background-color: #f8fafc; border-bottom: 1px solid var(--border-light); display: flex; justify-content: space-between; align-items: center; font-size: 10px; }
         .modal-select { background-color: var(--bg-card); border: 1px solid var(--border-light); border-radius: 4px; padding: 1px 4px; font-weight: 500; outline: none; }
+        .chart-source-badge { margin-left: auto; margin-right: 8px; padding: 2px 6px; border-radius: 4px; background-color: #ecfdf5; color: #047857; font-size: 8.5px; font-weight: 700; white-space: nowrap; }
+        .chart-source-badge.simulated { background-color: #fff7ed; color: #c2410c; }
         .modal-chart-body { padding: 12px; flex: 1; display: flex; align-items: center; justify-content: center; min-height: 220px; }
     </style>
 </head>
@@ -480,7 +482,7 @@
                     <span id="refresh-timer">--:--</span>
                 </span>
             </div>
-            <span class="version-badge">100v7</span>
+            <span class="version-badge">100v8</span>
         </div>
         <div class="navbar-row-menu">
             <button onclick="switchScreen('welcome')" id="nav-welcome" class="nav-item">Inicio</button>
@@ -496,7 +498,7 @@
             <div class="welcome-card">
                 <span class="welcome-icon">📈</span>
                 <h1 class="welcome-title">Consulta de Valores</h1>
-                <p class="welcome-author">Por Lucio J, Martinez 100v7</p>
+                <p class="welcome-author">Por Lucio J, Martinez 100v8</p>
                 
                 <div class="welcome-time-box">
                     <p id="welcome-date" class="welcome-date">-- de -- de ----</p>
@@ -601,13 +603,14 @@
             <div class="modal-header">
                 <div>
                     <h3 id="modal-title">Gráfico de Activo</h3>
-                    <p>Simulación histórica del activo seleccionado</p>
+                    <p>Histórico del activo seleccionado</p>
                 </div>
                 <button onclick="closeChartModal()" class="modal-close">&times;</button>
             </div>
             
             <div class="modal-controls">
                 <span>Periodo:</span>
+                <span id="chart-source-badge" class="chart-source-badge">--</span>
                 <select id="chart-timeframe" onchange="updateChartData()" class="modal-select">
                     <option value="day">Día</option>
                     <option value="week">Semana</option>
@@ -658,7 +661,7 @@
             sp500: { name: "S&P 500", ticker: "^GSPC", base: 7519.12, col: 3, nativeCurrency: 'USD', isUSMarket: true, change: 0 },      
             nasdaq: { name: "Nasdaq 100", ticker: "^NDX", base: 29994.00, col: 3, nativeCurrency: 'USD', isUSMarket: true, change: 0 },  
             dowjones: { name: "Dow Jones", ticker: "^DJI", base: 50461.68, col: 3, nativeCurrency: 'USD', isUSMarket: true, change: 0 }, 
-            dolareuro: { name: "Dólar/Euro", ticker: "USDEUR=X", base: 0.8620, col: 3, isForex: true, baseCurrency: 'USD', quoteCurrency: 'EUR', forexName: 'Dólar estadounidense', change: 0 },     
+            dolareuro: { name: "EUR/USD", ticker: "EURUSD=X", base: 1.1600, col: 3, isForex: true, baseCurrency: 'EUR', quoteCurrency: 'USD', forexName: 'Dólar estadounidense', change: 0 },     
             eurosek: { name: "EUR/SEK", ticker: "EURSEK=X", base: 10.83, col: 3, isForex: true, baseCurrency: 'EUR', quoteCurrency: 'SEK', forexName: 'Corona sueca', change: 0 },
             euronok: { name: "EUR/NOK", ticker: "EURNOK=X", base: 10.80, col: 3, isForex: true, baseCurrency: 'EUR', quoteCurrency: 'NOK', forexName: 'Corona noruega', change: 0 },
             eurodkk: { name: "EUR/DKK", ticker: "EURDKK=X", base: 7.47, col: 3, isForex: true, baseCurrency: 'EUR', quoteCurrency: 'DKK', forexName: 'Corona danesa', change: 0 },
@@ -919,14 +922,15 @@
                     priceDisplay = `1 ${baseCurrency} = ${formatSpanishNumber(data.price, false, true)} ${quoteCurrency}`;
                 } else {
                     let calculatedValue = data.price;
+                    const displayCurrency = asset.market === 'ES' ? 'EUR' : currentCurrency;
 
-                    if (asset.nativeCurrency === 'USD' && currentCurrency === 'EUR') {
+                    if (asset.nativeCurrency === 'USD' && displayCurrency === 'EUR') {
                         calculatedValue = data.price / eurToUsd;
-                    } else if (asset.nativeCurrency === 'EUR' && currentCurrency === 'USD') {
+                    } else if (asset.nativeCurrency === 'EUR' && displayCurrency === 'USD') {
                         calculatedValue = data.price * eurToUsd;
                     }
 
-                    priceDisplay = `${lockPrefix}${formatSpanishNumber(calculatedValue)} ${currencySymbols[currentCurrency]}`;
+                    priceDisplay = `${lockPrefix}${formatSpanishNumber(calculatedValue)} ${currencySymbols[displayCurrency]}`;
                 }
 
                 let futureHtml = '';
@@ -1238,10 +1242,19 @@
             }
 
             let unitToDisplay = asset.isYield ? '%' : currencySymbols[currentCurrency];
-            if (key === 'ibex35') unitToDisplay = '€';
+            if (asset.market === 'ES') unitToDisplay = '€';
             if (asset.isForex) unitToDisplay = ''; 
 
+            updateChartSourceBadge(usedRealData);
             renderChart(labels, data, unitToDisplay);
+        }
+
+        function updateChartSourceBadge(usedRealData) {
+            const badge = document.getElementById('chart-source-badge');
+            if (!badge) return;
+
+            badge.textContent = usedRealData ? 'Histórico real' : 'Simulación';
+            badge.classList.toggle('simulated', !usedRealData);
         }
 
         function formatHistoryLabel(timestamp, timeframe) {
