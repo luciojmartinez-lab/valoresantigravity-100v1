@@ -3,7 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Consulta de Valores por Lucio J, Martinez 100v8</title>
+    <meta name="theme-color" content="#1976d2">
+    <meta name="background-color" content="#f1f5f9">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Valores">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
+    <link rel="apple-touch-icon" href="/icons/icon-192.png">
+    <title>Consulta de Valores por Lucio J, Martinez 100v9</title>
     <!-- Chart.js para los gráficos interactivos -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
@@ -482,7 +491,7 @@
                     <span id="refresh-timer">--:--</span>
                 </span>
             </div>
-            <span class="version-badge">100v8</span>
+            <span class="version-badge">100v9</span>
         </div>
         <div class="navbar-row-menu">
             <button onclick="switchScreen('welcome')" id="nav-welcome" class="nav-item">Inicio</button>
@@ -498,7 +507,7 @@
             <div class="welcome-card">
                 <span class="welcome-icon">📈</span>
                 <h1 class="welcome-title">Consulta de Valores</h1>
-                <p class="welcome-author">Por Lucio J, Martinez 100v8</p>
+                <p class="welcome-author">Por Lucio J, Martinez 100v9</p>
                 
                 <div class="welcome-time-box">
                     <p id="welcome-date" class="welcome-date">-- de -- de ----</p>
@@ -1332,6 +1341,14 @@
                         }
                     }
                 }
+            });
+        }
+
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/service-worker.js').catch(error => {
+                    console.error('No se pudo registrar el service worker.', error);
+                });
             });
         }
     </script>
