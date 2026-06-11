@@ -12,7 +12,7 @@
     <link rel="manifest" href="/manifest.json">
     <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
     <link rel="apple-touch-icon" href="/icons/icon-192.png">
-    <title>Consulta de Valores por Lucio J, Martinez 100v10</title>
+    <title>Consulta de Valores por Lucio J, Martinez 100v11</title>
     <!-- Chart.js para los gráficos interactivos -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
@@ -39,6 +39,11 @@
             box-sizing: border-box;
             margin: 0;
             padding: 0;
+        }
+
+        html {
+            -webkit-text-size-adjust: 100%;
+            text-size-adjust: 100%;
         }
 
         body {
@@ -207,6 +212,18 @@
         }
         #col-3 .card-price {
             font-size: 9.5px;
+        }
+        #col-4 .value-card {
+            min-height: 92px;
+        }
+        #col-4 .card-title {
+            font-size: 8.5px;
+            line-height: 1.1;
+        }
+        #col-4 .card-price {
+            font-size: 10px;
+            line-height: 1.15;
+            white-space: normal;
         }
 
         .col-header {
@@ -493,7 +510,7 @@
                     <span id="refresh-timer">--:--</span>
                 </span>
             </div>
-            <span class="version-badge">100v10</span>
+            <span class="version-badge">100v11</span>
         </div>
         <div class="navbar-row-menu">
             <button onclick="switchScreen('welcome')" id="nav-welcome" class="nav-item">Inicio</button>
@@ -509,7 +526,7 @@
             <div class="welcome-card">
                 <span class="welcome-icon">📈</span>
                 <h1 class="welcome-title">Consulta de Valores</h1>
-                <p class="welcome-author">Por Lucio J, Martinez 100v10</p>
+                <p class="welcome-author">Por Lucio J, Martinez 100v11</p>
                 
                 <div class="welcome-time-box">
                     <p id="welcome-date" class="welcome-date">-- de -- de ----</p>
