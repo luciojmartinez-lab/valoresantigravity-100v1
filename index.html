@@ -11,7 +11,7 @@
     <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
     <link rel="apple-touch-icon" href="/icons/icon-192.png">
     <script src="/updates.js" defer></script>
-    <title>Consulta de Valores por Lucio J, Martinez 100v14</title>
+    <title>Consulta de Valores por Lucio J, Martinez 100v15</title>
     <!-- Chart.js para los gráficos interactivos -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
@@ -430,6 +430,7 @@
         .modal-chart-body { padding: 12px; flex: 1; display: flex; align-items: center; justify-content: center; min-height: 220px; }
     </style>
     <link rel="stylesheet" href="catalogo.css">
+    <link rel="stylesheet" href="simulation.css">
 </head>
 <body>
 
@@ -442,11 +443,12 @@
                     <span id="refresh-timer">--:--</span>
                 </span>
             </div>
-            <span class="version-badge">100v14</span>
+            <span class="version-badge">100v15</span>
         </div>
         <div class="navbar-row-menu">
             <button onclick="switchScreen('welcome')" id="nav-welcome" class="nav-item">Inicio</button>
             <button onclick="switchScreen('dashboard')" id="nav-dashboard" class="nav-item">Valores</button>
+            <button onclick="switchScreen('simulator')" id="nav-simulator" class="nav-item">Simulación bursátil</button>
             <button onclick="switchScreen('settings')" id="nav-item-settings" class="nav-item">Configuración</button>
         </div>
     </div>
@@ -462,7 +464,7 @@
             <div class="welcome-card">
                 <span class="welcome-icon">📈</span>
                 <h1 class="welcome-title">Consulta de Valores</h1>
-                <p class="welcome-author">Por Lucio J, Martinez 100v14</p>
+                <p class="welcome-author">Por Lucio J, Martinez 100v15</p>
 
                 <div class="welcome-time-box">
                     <p id="welcome-date" class="welcome-date">-- de -- de ----</p>
@@ -514,6 +516,8 @@
         </div>
 
         <!-- PANTALLA 3: CONFIGURACIÓN -->
+        <div id="screen-simulator" class="hidden" aria-label="Simulación bursátil"></div>
+
         <div id="screen-settings" class="hidden">
             <div class="settings-scroll">
 
@@ -574,7 +578,7 @@
 
                 <div class="settings-section">
                     <h3>Copia de Seguridad de la Plataforma</h3>
-                    <p>Resguarda o restaura tus configuraciones locales en formato JSON:</p>
+                    <p>Resguarda o restaura la selección de valores y sus preferencias en formato JSON. Las carteras de simulación tienen sus propios botones de exportar e importar en «Simulación bursátil».</p>
                     <div class="backup-buttons">
                         <button onclick="exportBackup()" class="btn-backup btn-export">
                             Exportar JSON
@@ -626,5 +630,6 @@
     </div>
 
     <script src="app.js"></script>
+    <script type="module" src="simulator.mjs"></script>
 </body>
 </html>

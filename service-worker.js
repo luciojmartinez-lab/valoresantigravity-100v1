@@ -1,6 +1,6 @@
 const BUILD = '__APP_BUILD__';
 const CACHE_NAME = `valores-app-${BUILD}`;
-const SHELL = ['/', '/index.html', '/app.js', '/catalogo.css', '/updates.js', '/manifest.json', '/icons/icon-192.png', '/icons/icon-512.png'];
+const SHELL = ['/', '/index.html', '/app.js', '/catalogo.css', '/updates.js', '/manifest.json', '/icons/icon-192.png', '/icons/icon-512.png', '/simulation.css', '/simulation-engine.mjs', '/simulator.mjs'];
 self.addEventListener('install', event => {
     event.waitUntil((async () => {
         const cache = await caches.open(CACHE_NAME);

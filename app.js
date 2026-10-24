@@ -387,9 +387,9 @@ async function importBackup(event) {
 }
 
 function switchScreen(screen) {
-    if (!['welcome', 'dashboard', 'settings'].includes(screen)) screen = 'welcome';
-    ['welcome', 'dashboard', 'settings'].forEach(id => el(`screen-${id}`).classList.toggle('hidden', id !== screen));
-    ['welcome', 'dashboard'].forEach(id => el(`nav-${id}`).classList.toggle('active', id === screen));
+    if (!['welcome', 'dashboard', 'simulator', 'settings'].includes(screen)) screen = 'welcome';
+    ['welcome', 'dashboard', 'simulator', 'settings'].forEach(id => el(`screen-${id}`).classList.toggle('hidden', id !== screen));
+    ['welcome', 'dashboard', 'simulator'].forEach(id => el(`nav-${id}`).classList.toggle('active', id === screen));
     el('nav-item-settings').classList.toggle('active', screen === 'settings');
     try { localStorage.setItem('val_100v14_screen', screen); } catch (_) { }
 }
@@ -431,6 +431,7 @@ async function updateChartData() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+    window.ValoresMarket = {catalogue: () => catalogue, quote: ticker => quotes[ticker], rate: currency => rates[currency], api};
     loadState();
     renderSettings();
     renderDashboard();
