@@ -11,5 +11,5 @@ for (const file of files) {
     } else await cp(file, `public/${file}`);
 }
 await cp('icons', 'public/icons', { recursive: true });
-await writeFile('public/version.json', JSON.stringify({version: '100v15', build}));
-console.log(`Consulta de Valores 100v15 · build ${build}`);
+await writeFile('public/version.json', JSON.stringify({version: '100v16', build}));
+console.log(`Consulta de Valores 100v16 · build ${build}`);

@@ -26,5 +26,14 @@ button:disabled { opacity: .5; cursor: default; }
 #chart-status { padding: 6px 14px; font-size: 11px; line-height: 1.4; color: #64748b; }
 #screen-dashboard { min-height: 0; }
 .main-container { min-height: 0; }
+.dashboard-scroll { justify-content: flex-start; overflow-x: auto; }
+.dashboard-grid { flex: 0 0 auto; margin-inline: auto; }
+.grid-col, .col-header { flex-shrink: 0; }
+.col-content { min-height: 0; }
+/* Las columnas largas deben desplazarse, sin comprimir las tarjetas ni sus datos. */
+.value-card { flex: 0 0 auto; }
+.value-card > * { flex-shrink: 0; }
+.card-price { white-space: normal; overflow: visible; overflow-wrap: anywhere; line-height: 1.35; }
+.btn-action { min-width: 32px; min-height: 32px; font-size: 16px; }
 @media (min-width: 1024px) { .grid-col { width: 178px !important; } }
-@media (max-width: 600px) { .grid-col { width: 155px; } .catalogue-controls select { width: 100%; } .etf-table { font-size: 11px; } }
+@media (max-width: 600px) { .grid-col { width: 155px; } .card-price { font-size: 12px; } .catalogue-controls select { width: 100%; } .etf-table { font-size: 11px; } }
