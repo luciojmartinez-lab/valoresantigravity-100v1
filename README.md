@@ -1,6 +1,6 @@
 # Consulta de Valores · versión web 100v14
 
-Publicación: https://valoresantigravity-100v1.netlify.app/
+Publicación: https://consulta-de-valores.netlify.app/
 
 La versión web reúne el catálogo ampliado de ETF estadounidenses y europeos y acciones españolas, Yahoo Finance y las series diarias del Banco de España. Conserva las divisas y migra la selección de ETF de la aplicación móvil anterior. Cada dispositivo mantiene sus propias preferencias en el navegador; no hay sincronización de selecciones entre dispositivos.
 
