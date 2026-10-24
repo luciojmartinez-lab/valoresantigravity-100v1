@@ -61,6 +61,33 @@
 .sim-storage .sim-field { flex: 1; min-width: 180px; }
 .sim-sources a { color: #12617b; } .sim-sources li { font-size: 12px; line-height: 1.6; margin-bottom: 7px; }
 .sim-sources ul { padding-left: 20px; }
+.sim-simple .sim-advanced { display: none !important; }
+.sim-start { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px; padding: 18px 20px; margin-bottom: 16px; background: #e3f3f0; border: 1px solid #bfddd5; border-radius: 12px; }
+.sim-start strong { font-size: 17px; } #screen-simulator .sim-start p { margin: 5px 0 0; }
+.sim-viewbar { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; margin: 0 0 16px; font-size: 12px; color: #496779; }
+.sim-viewbar span { flex: 1; min-width: 200px; }
+.sim-learning-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin: 5px 0 20px; }
+.sim-lesson-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 12px; }
+.sim-lesson-card { border: 1px solid #d6e3e9; border-radius: 10px; padding: 16px; display: flex; flex-direction: column; align-items: flex-start; gap: 8px; }
+#screen-simulator .sim-lesson-card p { margin: 0; }
+.sim-lesson-card .sim-button { margin-top: auto; }
+.sim-level { display: inline-block; font-size: 11px; font-weight: 750; padding: 5px 9px; border-radius: 20px; background: #edf2f7; color: #4b6275; }
+.sim-level.level-1 { background: #dff1e7; color: #25624a; } .sim-level.level-2 { background: #e8effa; color: #385e8e; } .sim-level.level-3 { background: #fcf0df; color: #815f27; }
+.sim-tutorial-top { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 14px; color: #406473; font-size: 12px; font-weight: 700; }
+.sim-tutorial-top progress { height: 8px; width: min(240px,60%); accent-color: #0c748a; }
+.sim-tutorial-nav { display: flex; justify-content: space-between; gap: 12px; margin-top: 20px; border-top: 1px solid #dbe5ed; padding-top: 16px; }
+.sim-tutorial-live { margin: 16px 0; border: 1px solid #c5deda; background: #f0f8f5; padding: 14px; border-radius: 9px; }
+.sim-lesson-metrics { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 10px; }
+.sim-lesson-metrics span { font-size: 11px; line-height: 1.5; color: #4c6575; } .sim-lesson-metrics b { display: block; font-size: 18px; color: #194857; margin-top: 5px; }
+.sim-practice { border-left: 4px solid #3f8a78; }
+.sim-practice-current { margin: 16px 0; padding: 12px 14px; background: #e8f4ef; border-radius: 8px; font-size: 14px; line-height: 1.6; }
+.sim-exercise, .sim-quiz { padding: 14px; background: #f3f7fa; border: 1px solid #dce6ec; border-radius: 8px; margin: 14px 0; font-size: 13px; }
+.sim-glossary { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 10px; margin: 16px 0; }
+.sim-glossary details { align-self: start; padding: 10px 14px; border: 1px solid #dbe5ed; border-radius: 8px; }
+#screen-simulator .sim-glossary summary { padding-bottom: 4px; }
+.sim-result-details > summary { margin-bottom: 8px; }
+@media (max-width: 1000px) { .sim-lesson-grid { grid-template-columns: repeat(2,minmax(0,1fr)); } .sim-lesson-metrics { grid-template-columns: repeat(2,minmax(0,1fr)); } }
+@media (max-width: 650px) { .sim-start { padding: 15px; } .sim-lesson-grid, .sim-glossary { grid-template-columns: 1fr; } .sim-learning-tabs .sim-button { flex: 1; } .sim-start .sim-actions { width: 100%; } .sim-start .sim-button { flex: 1; } }
 @media (max-width: 1000px) { .sim-position .sim-grid { grid-template-columns: repeat(3, minmax(0,1fr)); } .sim-grid, .sim-position .sim-config .sim-grid { grid-template-columns: repeat(3, minmax(0,1fr)); } .sim-summary { grid-template-columns: repeat(2, minmax(0,1fr)); } }
 @media (max-width: 650px) { #screen-simulator { padding: 14px 10px; } .sim-panel { padding: 15px; } .sim-heading { flex-direction: column; gap: 6px; } .sim-grid, .sim-position .sim-grid, .sim-position .sim-config .sim-grid { grid-template-columns: repeat(2, minmax(0,1fr)); } .sim-results-grid { grid-template-columns: 1fr; } #sim-search-results { grid-template-columns: 1fr; } .sim-metric { padding: 14px; } .sim-position { padding: 12px; } .navbar-row-menu { gap: 4px; padding: 6px; } .nav-item { padding: 7px 4px; font-size: 10px; } }
 @media print { body { height: auto; overflow: visible; } .top-navbar, .market-toolbar, #screen-welcome, #screen-dashboard, #screen-settings, .sim-no-print { display: none !important; } .main-container, #screen-simulator { overflow: visible; display: block !important; } .sim-panel { break-inside: avoid; box-shadow: none; } }

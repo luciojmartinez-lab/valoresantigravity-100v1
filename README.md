@@ -1,4 +1,4 @@
-# Consulta de Valores · versión web 100v16
+# Consulta de Valores · versión web 100v17
 
 Publicación: https://consulta-de-valores.netlify.app/
 
@@ -7,6 +7,10 @@ La versión web reúne el catálogo ampliado de ETF estadounidenses y europeos y
 Las columnas del panel desplazan sus tarjetas verticalmente sin comprimirlas. Los precios completos y los botones de actualizar/histórico conservan su espacio, también en móvil y en columnas con muchos activos. En anchos intermedios se mantiene el desplazamiento horizontal para acceder a todas las columnas.
 
 ## Simulación bursátil
+
+La vista sencilla muestra primero cantidad y precios y conserva todos los parámetros y cálculos de la vista completa. Se puede cambiar de vista sin perder datos. La ayuda integrada ofrece un tutorial de seis pasos con botones para probar precios, un diccionario y diez prácticas ordenadas por dificultad: primera compra, pérdida, cartera repartida, dividendos, divisas, call comprada, put protectora, call cubierta, put vendida con efectivo y cartera mixta. Las opciones quedan para las prácticas posteriores y los controles manuales se muestran al abrir todos los campos.
+
+`simulation-lessons.mjs` crea las carteras didácticas con tickers DEMO, precios, primas y cambios ficticios e independientes de Yahoo. No se consultan cotizaciones de esos tickers. Cada práctica explica qué observar, permite cambiar datos y muestra el resultado calculado con las mismas comisiones e impuestos que el motor de la aplicación. El tutorial y las prácticas de opciones enlazan a recursos de CNMV y OCC/OIC. Se conserva la recuperación de la cartera previa en `valores_practice_backup_v1`, incluso al cambiar de práctica o reabrir la aplicación. El progreso del tutorial y la preferencia de vista se guardan por dispositivo. La copia previa se recupera expresamente con su botón; cargar prácticas no modifica los escenarios ya guardados.
 
 La pestaña nueva permite construir una cartera con acciones/ETF y compras o ventas de opciones call/put. El capital inicial es editable (10.000 EUR por defecto). Incluye un ejemplo didáctico con precios y primas ficticios, consulta de precios iniciales en Yahoo y búsqueda local o en línea. Las primas de opciones, los precios finales y los cambios futuros son manuales; no hay cadena de opciones en tiempo real.
 

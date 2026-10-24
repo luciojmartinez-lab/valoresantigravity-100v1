@@ -1,24 +1,27 @@
 import {calculate, defaults, PROFILES, validate} from './simulation-engine.mjs';
+import {LESSONS, TUTORIAL, GLOSSARY, createLesson} from './simulation-lessons.mjs';
 const $ = id => document.getElementById(id);
 const html = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const eur = v => Number.isFinite(v) ? v.toLocaleString('es-ES', {style:'currency',currency:'EUR'}) : '—';
+const eur = v => Number.isFinite(v) ? Number(v.toFixed(8)).toLocaleString('es-ES', {style:'currency',currency:'EUR'}) : '—';
 const num = v => Number.isFinite(v) ? v.toLocaleString('es-ES', {maximumFractionDigits: 4}) : '—';
 const KEY = 'valores_simulation_v1', SAVED = 'valores_simulation_saved_v1';
+const LEARNING = 'valores_learning_v1', PRACTICE_BACKUP = 'valores_practice_backup_v1';
 let state = defaults(), saved = [], matches = [], shock = 0, quoteRequest = 0;
+let learning = {simple:true,open:false,tab:'tutorial',step:0}, practiceBackup = null;
 let searchRequest = 0;
 const status = message => {$('sim-status').textContent = message;};
 function persist() {
     try {localStorage.setItem(KEY, JSON.stringify(state));} catch (_) {status('El navegador no permite guardar. Exporta tu simulación a JSON.');}
 }
 function field(key, label, value, options = {}) {
-    const {row, min = 0, step = 'any', type = 'number', help = ''} = options;
+    const {row, min = 0, step = 'any', type = 'number', help = '', advanced = false} = options;
     const id = `sim-${row === undefined ? 'cfg' : row}-${key}`;
     const attrs = row === undefined ? `data-setting="${key}"` : `data-row="${row}" data-field="${key}"`;
-    return `<label class="sim-field" for="${id}">${label}<input id="${id}" ${attrs} type="${type}" value="${html(value)}" ${type === 'number' ? `min="${min}" step="${step}"` : ''}>${help ? `<small>${help}</small>` : ''}</label>`;
+    return `<label class="sim-field${advanced?' sim-advanced':''}" for="${id}">${label}<input id="${id}" ${attrs} type="${type}" value="${html(value)}" ${type === 'number' ? `min="${min}" step="${step}"` : ''}>${help ? `<small>${help}</small>` : ''}</label>`;
 }
-function select(key, label, value, choices, row) {
+function select(key, label, value, choices, row, advanced = false) {
     const id = `sim-${row === undefined ? 'cfg' : row}-${key}`;
-    return `<label class="sim-field" for="${id}">${label}<select id="${id}" ${row === undefined ? `data-setting="${key}"` : `data-row="${row}" data-field="${key}"`}>${choices.map(([v,l]) => `<option value="${v}" ${value === v ? 'selected' : ''}>${l}</option>`).join('')}</select></label>`;
+    return `<label class="sim-field${advanced?' sim-advanced':''}" for="${id}">${label}<select id="${id}" ${row === undefined ? `data-setting="${key}"` : `data-row="${row}" data-field="${key}"`}>${choices.map(([v,l]) => `<option value="${v}" ${value === v ? 'selected' : ''}>${l}</option>`).join('')}</select></label>`;
 }
 const SOURCES = `<details class="sim-panel sim-sources"><summary>Cómo se calcula · fuentes y límites</summary>
 <p>Son escenarios hipotéticos, no previsiones. Los precios de entrada consultados en Yahoo pueden estar retrasados. Los precios futuros, dividendos, primas y cambios son supuestos tuyos. Los ejemplos usan cifras ficticias. La disponibilidad de un activo en el catálogo no confirma que tu intermediario permita negociarlo; algunos ETF estadounidenses están restringidos para minoristas europeos.</p>
@@ -33,8 +36,13 @@ const SOURCES = `<details class="sim-panel sim-sources"><summary>Cómo se calcul
 
 function render() {
     const root = $('screen-simulator');
+    root.classList.toggle('sim-simple',learning.simple);
     root.innerHTML = `<div class="sim-wrap"><div class="sim-heading"><div class="sim-intro"><div class="sim-eyebrow">Tu capital, con todos los costes a la vista</div><h1>Simulación bursátil</h1><p class="sim-muted">Reparte tu inversión entre acciones, ETF y opciones. Compara cuánto necesitas al empezar y cuánto te quedaría después de gastos e impuestos.</p></div><span class="sim-tag">Cálculo local · sin operaciones reales</span></div>
-    <section class="sim-panel sim-no-print" aria-label="Datos de la simulación"><div class="sim-topline"><h2>1. Define tu escenario</h2><div class="sim-actions"><button class="sim-button secondary" data-action="example">Cargar ejemplo de 10.000 €</button><button class="sim-button secondary" data-action="new">Nueva simulación</button><button class="sim-button" data-action="results">Ver resultado ↓</button></div></div><div class="sim-grid">
+    <section class="sim-start sim-no-print" aria-label="Ayuda para principiantes"><div><strong>¿Por dónde empiezo?</strong><p>Prueba una sola compra con 1.000 € ficticios. Te acompañamos paso a paso.</p></div><div class="sim-actions"><button class="sim-button" data-action="start-tutorial">Empezar tutorial</button><button class="sim-button secondary" data-action="learn-examples">Elegir ejemplo</button><button class="sim-button secondary" data-action="learn-glossary">Diccionario de bolsa</button></div></section>
+    <details id="sim-school" class="sim-panel sim-no-print" ${learning.open?'open':''}><summary>Ayuda y ejemplos para principiantes</summary><div class="sim-learning-tabs" aria-label="Secciones de ayuda">${[['tutorial','Tutorial paso a paso'],['examples','10 ejemplos para practicar'],['glossary','Diccionario']].map(([tab,label])=>`<button class="sim-button ${learning.tab===tab?'':'secondary'}" data-action="learn-${tab}" aria-pressed="${learning.tab===tab}">${label}</button>`).join('')}</div><div id="sim-learning-content"></div></details>
+    <div class="sim-viewbar sim-no-print"><span>${learning.simple?'Vista sencilla: empieza por cantidad y precios. Los demás ajustes conservan sus valores.':'Vista completa: puedes editar todos los campos.'}</span><button class="sim-button secondary" data-action="toggle-simple" aria-pressed="${learning.simple}">${learning.simple?'Mostrar todos los campos':'Usar vista sencilla'}</button>${practiceBackup?'<button class="sim-button secondary" data-action="restore-practice">Recuperar mi simulación anterior</button>':''}</div>
+    <div id="sim-practice-guide" class="sim-no-print"></div>
+    <section class="sim-panel sim-no-print" aria-label="Datos de la simulación"><div class="sim-topline"><h2>1. Define tu escenario</h2><div class="sim-actions"><button class="sim-button secondary" data-action="learn-examples">Elegir ejemplo</button><button class="sim-button secondary" data-action="new">Nueva simulación</button><button class="sim-button" data-action="results">Ver resultado ↓</button></div></div><div class="sim-grid">
     ${field('name','Nombre',state.name,{type:'text'})}${field('capital','Capital inicial (€)',state.capital)}${field('date','Fecha inicial',state.date,{type:'date'})}${field('endDate','Fecha final / liquidación',state.endDate,{type:'date'})}</div>
     <details class="sim-config"><summary>Comisiones, cambio de divisa e impuestos</summary><div class="sim-grid">
     ${select('profile','Perfil de comisiones',state.profile,[['smart','Freedom24 · Smart'],['inclusive','Freedom24 · All-inclusive'],['custom','Otro intermediario / personalizadas']])}
@@ -44,21 +52,74 @@ function render() {
     ${Object.keys(PROFILES.smart).filter(k => k !== 'name').map(k => field(`fees.${k}`,({stockFixed:'Acciones: fijo / orden',stockUnit:'Acciones: por título',stockPct:'Acciones: sobre importe (%)',optionFixed:'Opciones EE.UU.: fijo / orden (USD)',optionUnit:'Opciones EE.UU.: por contrato (USD)',otherOptionUnit:'Otras opciones: por contrato',expiryUnit:'Vencimiento EE.UU.: por contrato (USD)',otherExpiryUnit:'Vencimiento otras: por contrato'})[k],state.fees[k])).join('')}
     </div><p class="sim-muted">Tarifas por cada operación de entrada y salida. Acciones: USD en mercado estadounidense y EUR en europeo; este perfil sólo calcula acciones cotizadas en USD o EUR. Otras divisas requieren tarifa personalizada en la moneda del activo.</p>
     <div class="sim-grid">${select('taxMode','Fiscalidad',state.taxMode,[['common','España · régimen común'],['flat','Tipo efectivo manual']])}${field('flatTax','Tipo manual (%)',state.flatTax)}${field('otherGains','Otras ganancias/pérdidas del año (€)',state.otherGains,{min:-1e12})}${field('otherIncome','Otros intereses/dividendos netos (€)',state.otherIncome,{min:-1e12})}${field('foreignCredit','Deducción extranjera confirmada (€)',state.foreignCredit,{help:'Por defecto 0. No toda retención extranjera es deducible.'})}${state.rates.map((v,i)=>field(`rates.${i}`,`Tramo ${i+1} del ahorro (%)`,v)).join('')}</div><p class="sim-muted">Residente en España. Se parte del régimen común; confirma la normativa si resides en País Vasco o Navarra. No se aplica IRPF al capital aportado. Todas las operaciones de esta simulación se liquidan en un mismo año.</p></details></section>
-    <section class="sim-panel sim-no-print"><div class="sim-topline"><h2>2. Construye tu cartera</h2><div class="sim-actions"><button class="sim-button" data-action="add-stock">+ Acción / ETF</button><button class="sim-button secondary" data-action="add-call">+ Call</button><button class="sim-button secondary" data-action="add-put">+ Put</button></div></div>
+    <section class="sim-panel sim-no-print"><div class="sim-topline"><h2>2. Construye tu cartera</h2><div class="sim-actions"><button class="sim-button" data-action="add-stock">+ Acción / ETF</button><button class="sim-button secondary sim-advanced" data-action="add-call">+ Call</button><button class="sim-button secondary sim-advanced" data-action="add-put">+ Put</button></div></div>
     <div class="sim-searchbar"><input type="search" id="sim-search" aria-label="Buscar activo para la simulación" placeholder="Buscar en el catálogo: Santander, VWCE, SPY…"><button class="sim-button secondary" data-action="search">Buscar en Yahoo</button></div><div id="sim-search-results"></div><p class="sim-muted">Elige un activo para añadirlo como acción/ETF, o crea una línea y escribe su ticker. Las opciones usan el ticker del subyacente.</p>
-    <div class="sim-actions"><button class="sim-button secondary" data-action="quotes">Consultar precios actuales</button><span class="sim-muted" style="font-size:12px">Actualiza precios de entrada y cambios iniciales; conserva tus objetivos y primas.</span></div><div id="sim-status" role="status" aria-live="polite"></div><div id="sim-positions"></div></section>
+    <div class="sim-actions">${state.practiceExample?'<span class="sim-muted" style="font-size:12px">Práctica con precios ficticios: puedes cambiar los números sin consultar el mercado. Para valores reales, empieza una nueva simulación.</span>':'<button class="sim-button secondary" data-action="quotes">Consultar precios actuales</button><span class="sim-muted" style="font-size:12px">Actualiza precios de entrada y cambios iniciales; conserva tus objetivos y primas.</span>'}</div><div id="sim-status" role="status" aria-live="polite"></div><div id="sim-positions"></div></section>
     <section aria-label="Resultado de la simulación"><div class="sim-topline"><h2>3. Resultado estimado</h2><span id="sim-liquidation-date" class="sim-muted" style="font-size:12px">Liquidación completa al ${html(state.endDate)}</span></div><div id="sim-result" aria-live="polite"></div></section>
     <section class="sim-panel sim-no-print"><h2>Guarda y compara</h2><p class="sim-muted">La simulación actual se guarda al editar en este dispositivo. Para llevarla al móvil, exporta el JSON y ábrelo allí con «Importar». No hay sincronización automática entre dispositivos.</p><div class="sim-storage"><label class="sim-field" for="sim-saved">Escenarios guardados<select id="sim-saved"><option value="">Elige un escenario…</option>${saved.map((s,i)=>`<option value="${i}">${html(s.name)}</option>`).join('')}</select></label><button class="sim-button" data-action="save">Guardar escenario</button><button class="sim-button secondary" data-action="load">Abrir</button><button class="sim-button danger" data-action="delete-saved">Eliminar guardado</button></div><div class="sim-actions" style="margin-top:14px"><button class="sim-button secondary" data-action="export">Exportar JSON</button><label class="sim-button secondary">Importar JSON<input id="sim-import" type="file" accept=".json,application/json" class="hidden"></label><button class="sim-button secondary" data-action="csv">Descargar informe CSV</button><button class="sim-button secondary" data-action="print">Imprimir resultado / PDF</button></div></section>${SOURCES}</div>`;
-    renderPositions(); renderResults();
+    renderLearning(); renderPositions(); renderResults();
+}
+function saveLearning() {
+    try {localStorage.setItem(LEARNING,JSON.stringify(learning));}catch(_){}
+}
+function learningLive(r=calculate(state)) {
+    if(!r.rows||r.errors.length)return '<p>Completa los datos de la simulación y revisa los avisos para ver su resultado aquí.</p>';
+    const metrics=learning.step>=3?[['Capital final',r.finalCapital],['Beneficio / pérdida neta',r.net],['Costes de la cartera',r.costs],['IRPF adicional estimado',r.irpf-r.credit]]:[['Capital disponible',state.capital],['Desembolso inicial neto',r.debit],['Ganancia / pérdida neta',r.net],['Capital final',r.finalCapital]];
+    return `<div class="sim-lesson-metrics">${metrics.map(([label,value])=>`<span>${label}<b>${eur(value)}</b></span>`).join('')}</div><p class="sim-muted">Son los datos actuales de «${html(state.name)}». El capital final incluye el efectivo sin invertir.</p>`;
+}
+function renderLearning() {
+    const node=$('sim-learning-content');if(!node)return;
+    if(learning.tab==='examples'){
+        node.innerHTML=`<h2>Elige lo que quieres aprender</h2><p>Empieza por las cuatro prácticas básicas. Cada botón prepara una cartera completa para que sólo tengas que cambiar un dato y observar el resultado.</p><p class="sim-muted">Todos los ejemplos usan empresas, ETF, precios y primas ficticios. Al cargar el primero se conserva tu simulación anterior; puedes recuperarla con el botón situado junto a la vista sencilla.</p><div class="sim-lesson-grid">${LESSONS.map(l=>`<article class="sim-lesson-card"><span class="sim-level level-${l.level}">${l.tag}</span><h3>${l.title}</h3><p>${l.summary}</p><p class="sim-muted">Capital ficticio: ${eur(l.capital)}</p><button class="sim-button ${l.level===1?'':'secondary'}" data-action="load-lesson" data-lesson="${l.id}" aria-label="Cargar práctica: ${l.title}">Cargar esta práctica</button></article>`).join('')}</div>`;
+    }else if(learning.tab==='glossary'){
+        node.innerHTML=`<h2>Diccionario de bolsa, en palabras sencillas</h2><p>Pulsa un término para leer su explicación. Puedes volver al tutorial o a los ejemplos desde los botones de arriba.</p><div class="sim-glossary">${GLOSSARY.map(([term,meaning])=>`<details><summary>${term}</summary><p>${meaning}</p></details>`).join('')}</div><p class="sim-muted">Para ampliar: <a href="https://www.cnmv.es/portal/inversor/glosario?id=0&idlang=1&lang=es" target="_blank" rel="noopener">Glosario de la CNMV</a> · <a href="https://www.cnmv.es/DocPortal/Publicaciones/Guias/GUIA_OPCYFUT.PDF" target="_blank" rel="noopener">Guía CNMV de opciones y futuros</a> · <a href="https://www.optionseducation.org/optionsoverview/options-basics" target="_blank" rel="noopener">Opciones: OCC/OIC</a>. La fiscalidad y las fuentes del cálculo se detallan al final del simulador.</p>`;
+    }else{
+        const step=TUTORIAL[learning.step];
+        node.innerHTML=`<div class="sim-tutorial-top"><span>Paso ${learning.step+1} de ${TUTORIAL.length}</span><progress value="${learning.step+1}" max="${TUTORIAL.length}" aria-label="Progreso del tutorial"></progress></div><h2 tabindex="-1" id="sim-tutorial-title">${step.title}</h2>${step.paragraphs.map(p=>`<p>${p}</p>`).join('')}
+        ${learning.step===0?'<button class="sim-button" data-action="start-practice">Cargar mi primera práctica</button>':''}
+        ${learning.step===1?state.practiceExample==='first'?'<button class="sim-button secondary" data-action="focus-first">Ver dónde se escriben cantidad y precios</button>':'<button class="sim-button secondary" data-action="start-practice">Preparar la primera práctica</button>':''}
+        ${learning.step===2?state.practiceExample==='first'?`<div class="sim-actions">${[9,10,11,12].map(v=>`<button class="sim-button secondary" data-action="tutorial-price" data-value="${v}">Probar venta a ${v} €</button>`).join('')}</div>`:'<button class="sim-button secondary" data-action="start-practice">Preparar la primera práctica para este paso</button>':''}
+        ${[1,2,3,4].includes(learning.step)?'<div class="sim-tutorial-live" id="sim-tutorial-live">'+learningLive()+'</div>':''}
+        ${learning.step===3?'<button class="sim-button secondary" data-action="results">Ir al resultado completo</button>':''}
+        ${learning.step===4?`<div class="sim-quiz"><h3>Una comprobación rápida</h3><p>Si compras y vendes al mismo precio, ¿recuperas siempre todo lo que gastaste?</p><div class="sim-actions"><button class="sim-button secondary" data-action="quiz" data-answer="yes">Sí, siempre</button><button class="sim-button secondary" data-action="quiz" data-answer="no">No, faltan los gastos</button></div><p role="status" id="sim-quiz-answer">${learning.answer?learning.answer==='no'?'Exacto. Puedes perder las comisiones y otros gastos aunque el precio no cambie.':'Fíjate en las comisiones: comprar y vender al mismo precio puede dejar una pérdida.':''}</p></div>`:''}
+        ${learning.step===5?'<div class="sim-actions"><button class="sim-button" data-action="learn-examples">Elegir otra práctica</button><button class="sim-button secondary" data-action="learn-glossary">Consultar el diccionario</button></div>':''}
+        <div class="sim-tutorial-nav"><button class="sim-button secondary" data-action="tutorial-prev" ${learning.step===0?'disabled':''}>← Anterior</button><button class="sim-button" data-action="${learning.step===TUTORIAL.length-1?'tutorial-done':'tutorial-next'}">${learning.step===TUTORIAL.length-1?'Terminar tutorial':'Siguiente →'}</button></div>`;
+    }
+}
+function renderPractice(r) {
+    const node=$('sim-practice-guide'), lesson=LESSONS.find(l=>l.id===state.practiceExample);
+    if(!node)return;
+    if(!lesson){node.innerHTML='';return;}
+    const valid=r.rows&&!r.errors.length;
+    const prices=lesson.id==='call'?[4,5,6,8]:['put','covered','short-put'].includes(lesson.id)?[0,8,10,12,14]:[];
+    node.innerHTML=`<section class="sim-panel sim-practice"><div class="sim-topline"><h2>Estás practicando: ${lesson.title}</h2><span class="sim-level level-${lesson.level}">${lesson.tag}</span></div><p><strong>Qué aprenderás:</strong> ${lesson.learn}</p><p>${lesson.story}</p><div class="sim-exercise"><strong>Ahora prueba tú</strong><p>${lesson.try}</p>${prices.length?`<p>Probar otra situación (precio final del subyacente en USD):</p><div class="sim-actions">${prices.map(value=>`<button class="sim-button secondary" data-action="practice-price" data-value="${value}">${value} USD</button>`).join('')}</div>`:''}</div>
+    <div class="sim-practice-current" role="status">${valid?`Con tus datos actuales, ${r.net>=0?'ganarías':'perderías'} <strong>${eur(Math.abs(r.net))}</strong> netos. Tu capital final sería <strong>${eur(r.finalCapital)}</strong>.`:'Revisa los avisos del resultado para completar esta práctica.'}</div>
+    ${lesson.id==='first'&&valid?`<details><summary>¿De dónde sale ese resultado?</summary>${ledger([['Cambio de valor de las acciones, en EUR',r.rows.reduce((a,p)=>a+p.exitValue-p.entryValue,0)],['Costes de toda la operación',-r.costs],['Dividendos brutos',r.dividends],['Retención extranjera',-r.foreign],['IRPF adicional tras deducción',-r.irpf+r.credit],['Beneficio / pérdida neta',r.net]])}</details>`:''}
+    <p class="sim-muted">Precios y cambios ficticios. Se mantienen las comisiones y los impuestos del escenario, incluso en vista sencilla. ${state.positions.some(p=>p.kind!=='stock')?'En opciones se supone un gasto adicional de 2 € por ejercicio y liquidación de títulos cuando corresponde: es una hipótesis del ejercicio, no una tarifa confirmada.':''}</p><div class="sim-actions"><button class="sim-button secondary" data-action="results">Ver resultado ↓</button><button class="sim-button secondary" data-action="learn-examples">Cambiar de práctica</button><button class="sim-button secondary" data-action="learn-tutorial">Abrir tutorial</button></div></section>`;
+}
+function openLearning(tab) {
+    learning.tab=tab;learning.open=true;saveLearning();render();$('sim-school').scrollIntoView({block:'start'});
+}
+function loadLesson(id, tutorial=false) {
+    if(!practiceBackup){
+        practiceBackup=structuredClone(state);
+        try{localStorage.setItem(PRACTICE_BACKUP,JSON.stringify(practiceBackup));}catch(_){status('La copia anterior sólo puede conservarse durante esta sesión. Exporta tu simulación si quieres guardarla.');}
+    }
+    state=createLesson(id);shock=0;quoteRequest++;searchRequest++;
+    learning.simple=true;learning.open=tutorial;
+    if(tutorial){learning.tab='tutorial';learning.step=1;}
+    saveLearning();persist();render();
+    status('Práctica cargada con datos ficticios. Tu simulación anterior se conserva para recuperarla.');
+    $(tutorial?'sim-school':'sim-practice-guide').scrollIntoView({block:'start'});
 }
 function rowTemplate(p, i) {
     const option = p.kind !== 'stock';
     const f = (key,label,options={}) => field(key,label,p[key],{row:i,...options});
     return `<article class="sim-position"><div class="sim-position-header"><div><h3>${html(p.name || p.ticker || `Posición ${i+1}`)}</h3><div class="sim-position-label">${option ? `${p.side==='buy'?'Compra':'Venta'} ${p.kind} · prima por acción` : 'Compra de acciones / ETF'} · ${html(p.currency)}</div></div><button class="sim-button danger" data-action="remove" data-index="${i}" aria-label="Eliminar posición ${i+1}">Eliminar</button></div><div class="sim-grid">
-    ${f('ticker','Ticker del subyacente',{type:'text'})}${select('kind','Instrumento',p.kind,[['stock','Acción / ETF'],['call','Opción call'],['put','Opción put']],i)}${option?select('side','Operación',p.side,[['buy','Comprar opción'],['sell',p.kind==='call'?'Vender call cubierta':'Vender put con efectivo']],i):''}
-    ${f('qty',option?'Contratos':'Número de acciones',{step:1,min:1})}${f('currency','Divisa (EUR, USD…) ',{type:'text'})}${f('entry','Subyacente: precio inicial')}${f('target','Subyacente: precio final')}
-    ${option ? `${f('strike','Strike / ejercicio')}${f('premium','Prima inicial por acción')}${f('multiplier','Acciones por contrato',{step:1,min:1})}${f('expiry','Fecha de vencimiento',{type:'date'})}${select('exitMode','Liquidación',p.exitMode,[['expiry','A vencimiento (valor intrínseco)'],['close','Cierre con prima de salida']],i)}${p.exitMode==='close'?f('closePremium','Prima de salida por acción'):''}${select('optionMarket','Mercado de opciones',p.optionMarket,[['us','Opciones sobre acciones EE.UU.'],['other','Otras opciones cotizadas']],i)}` : `${f('dividend','Dividendo bruto total por acción',{help:'Importe acumulado durante el periodo, no porcentaje anual.'})}${f('buyTax','Impuesto de compra (%)',{help:'Ej. 0,2 si la acción está sujeta al ITF español.'})}`}
-    ${f('fxEntry',`Cambio inicial: ${html(p.currency)} por 1 EUR`,{min:.00000001})}${f('fxExit',`Cambio final: ${html(p.currency)} por 1 EUR`,{min:.00000001})}</div>
+    ${f('ticker','Ticker del subyacente',{type:'text',advanced:!!p.ticker})}${select('kind','Instrumento',p.kind,[['stock','Acción / ETF'],['call','Opción call'],['put','Opción put']],i,true)}${option?select('side','Operación',p.side,[['buy','Comprar opción'],['sell',p.kind==='call'?'Vender call cubierta':'Vender put con efectivo']],i,true):''}
+    ${f('qty',option?'Número de contratos':'Número de acciones',{step:1,min:1,help:option?'Cada contrato representa el número de acciones indicado debajo.':'Cuántas acciones o participaciones compras.'})}${f('currency','Divisa (EUR, USD…) ',{type:'text',advanced:true})}${f('entry',option?'Precio inicial del subyacente':'Precio de compra por acción',{help:`Importe por una unidad, en ${html(p.currency)}.`})}${f('target',option?'Precio final del subyacente':'Precio de venta que quieres probar',{help:'Es un supuesto tuyo, no una predicción.'})}
+    ${option ? `${f('strike','Strike: precio acordado',{help:'Precio al que da derecho a comprar o vender la opción.'})}${f('premium','Prima inicial por acción',{help:'Se multiplica por las acciones de cada contrato y por los contratos.'})}${f('multiplier','Acciones por contrato',{step:1,min:1})}${f('expiry','Fecha de vencimiento',{type:'date',advanced:true})}${select('exitMode','Liquidación',p.exitMode,[['expiry','A vencimiento (valor intrínseco)'],['close','Cierre con prima de salida']],i,true)}${p.exitMode==='close'?f('closePremium','Prima de salida por acción'):''}${select('optionMarket','Mercado de opciones',p.optionMarket,[['us','Opciones sobre acciones EE.UU.'],['other','Otras opciones cotizadas']],i,true)}` : `${f('dividend','Dividendo bruto total por acción',{help:'Importe acumulado durante el periodo, no porcentaje anual.',advanced:p.dividend===0})}${f('buyTax','Impuesto de compra (%)',{help:'Ej. 0,2 si la acción está sujeta al ITF español.',advanced:true})}`}
+    ${f('fxEntry',`Cambio inicial: ${html(p.currency)} por 1 EUR`,{min:.00000001,advanced:p.currency==='EUR'})}${f('fxExit',`Cambio final: ${html(p.currency)} por 1 EUR`,{min:.00000001,advanced:p.currency==='EUR'})}</div>
     <details class="sim-config"><summary>Gastos adicionales, retenciones y procedencia del precio</summary><div class="sim-grid">${f('slippage','Deslizamiento por operación (%)',{help:'Sobre importe negociado; 0 si tus precios ya son de ejecución.'})}${f('extraEntry','Gastos extra de entrada (€)')}${f('extraExit','Gastos extra de salida (€)')}${option?`${f('exerciseFee','Ejercicio y liquidación de títulos (€)',{help:'Sólo a vencimiento con valor intrínseco. Confirma comisión por entrega/venta de acciones.'})}${f('feeUsdEntry','USD por EUR inicial (comisión EE.UU.)',{min:.00000001})}${f('feeUsdExit','USD por EUR final (comisión EE.UU.)',{min:.00000001})}`:`${f('sellTax','Impuesto de venta (%)')}${f('withholdForeign','Retención extranjera dividendos (%)')}${f('withholdSpain','Retención española sobre neto recibido (%)')}`}</div><p class="sim-muted">${html(p.quoteNote || 'Precio de entrada manual. Confirma el precio ejecutable, la divisa y sus gastos.')} ${option?'Prima manual: consulta el contrato exacto en tu bróker (strike, fecha, bid/ask y multiplicador). No se descarga una cadena de opciones en tiempo real.':''}</p></details><div class="sim-position-note" id="sim-note-${i}"></div></article>`;
 }
 function renderPositions() {
@@ -68,6 +129,8 @@ function ledger(items) {return `<dl class="sim-ledger">${items.map(([label,value
 function renderResults() {
     $('sim-liquidation-date').textContent = `Liquidación completa al ${state.endDate}`;
     const r = calculate(state);
+    renderPractice(r);
+    if($('sim-tutorial-live'))$('sim-tutorial-live').innerHTML=learningLive(r);
     const errors = r.errors || [];
     let markup = errors.length ? `<div class="sim-errors"><strong>Revisa el escenario antes de considerarlo financiable</strong><ul>${errors.slice(0,20).map(x=>`<li>${html(x)}</li>`).join('')}</ul></div>` : '';
     if (!r.rows) { $('sim-result').innerHTML = markup; state.positions.forEach((_,i)=>{if($(`sim-note-${i}`)) $(`sim-note-${i}`).textContent='Completa los campos para calcular esta posición.';}); return; }
@@ -87,6 +150,13 @@ function renderResults() {
         if(compare.every(p=>p.r.rows))markup+=`<div class="sim-panel"><h3>Compara las comisiones ordinarias de Freedom24</h3><p>Smart: <strong>${eur(compare[0].r.commissions)}</strong> · All-inclusive: <strong>${eur(compare[1].r.commissions)}</strong>. ${Math.abs(compare[0].r.commissions-compare[1].r.commissions)<.005?'Mismo coste para este escenario.':`El menor coste de negociación en esta cartera es <strong>${compare[0].r.commissions<compare[1].r.commissions?'Smart':'All-inclusive'}</strong>.`}</p><p class="sim-muted">Mismas posiciones y cambios; sólo comisiones de negociación, vencimiento y ejercicio. No compara promociones, servicios ni disponibilidad de instrumentos.</p></div>`;
     }
     $('sim-result').innerHTML = markup;
+    const breakdown=$('sim-result').querySelector('.sim-results-grid');
+    if(breakdown){
+        const detail=document.createElement('details'),summary=document.createElement('summary');
+        detail.className='sim-panel sim-result-details';detail.open=!learning.simple;
+        summary.textContent='Ver el detalle de gastos, efectivo e impuestos';
+        breakdown.before(detail);detail.append(summary,breakdown);
+    }
     sensitivity();
 }
 function sensitivity() {
@@ -129,6 +199,7 @@ async function searchOnline() {
     catch(e) {if(request===searchRequest)status(e.message);}
 }
 async function loadQuotes() {
+    if(state.practiceExample){status('Esta práctica usa datos ficticios. Para consultar valores reales, empieza una nueva simulación.');return;}
     const tickers=[...new Set(state.positions.map(p=>p.ticker).filter(x=>/^[A-Z0-9^=.:_+\-]{1,45}$/.test(x)))];
     if(!tickers.length){status('Añade primero un ticker.');return;}
     const request=++quoteRequest; status('Consultando precios y cambios en Yahoo…');
@@ -166,15 +237,6 @@ function csv() {
     const cell=v=>`"${(typeof v==='number'?v.toLocaleString('es-ES',{useGrouping:false,maximumFractionDigits:6}):String(v??'').replace(/^[=+@\-]/, "'$&")).replaceAll('"','""')}"`;
     download('\uFEFF'+rows.map(row=>row.map(cell).join(';')).join('\r\n'),'Simulacion_bursatil.csv','text/csv;charset=utf-8');status('Informe descargado. El JSON conserva todos los parámetros para repetir el cálculo.');
 }
-function example() {
-    state=defaults();state.name='Ejemplo didáctico · 10.000 €';state.fxPct=.15;state.withdrawal=7;
-    const stock={...position('stock',{ticker:'SAN.MC',name:'Banco Santander · ejemplo ficticio'}),qty:300,entry:8,target:8.8,dividend:.2,buyTax:.2,withholdSpain:19};
-    const etf={...position('stock',{ticker:'VWCE.DE',name:'ETF global · ejemplo ficticio'}),qty:20,entry:140,target:150};
-    const call={...position('call',{ticker:'XYZ',name:'XYZ · subyacente ficticio'}),currency:'USD',entry:40,target:46,strike:42,premium:2.2,fxEntry:1.1,fxExit:1.1,feeUsdEntry:1.1,feeUsdExit:1.1,optionMarket:'us'};
-    const put={...call,kind:'put',strike:38,premium:1.5};
-    stock.quoteNote=etf.quoteNote=call.quoteNote=put.quoteNote='Ejemplo didáctico: precios, primas, cambio y dividendos ficticios. No son cotizaciones ni una recomendación.';
-    state.positions=[stock,etf,call,put]; shock=0;quoteRequest++;persist();render();status('Ejemplo cargado con cifras ficticias: acciones, ETF, compra call y compra put. Cambia las cantidades y objetivos.');
-}
 function handleChange(event) {
     const target=event.target;
     if(target.id==='sim-import')return;
@@ -198,12 +260,30 @@ function handleChange(event) {
 async function action(event) {
     const button=event.target.closest('[data-action]');if(!button)return;
     const a=button.dataset.action,index=Number(button.dataset.index);
+    if(a==='start-tutorial'){learning.step=0;learning.answer=null;openLearning('tutorial');return;}
+    if(a.startsWith('learn-')){openLearning(a.slice(6));return;}
+    if(a==='toggle-simple'){learning.simple=!learning.simple;saveLearning();render();return;}
+    if(a==='load-lesson'){loadLesson(button.dataset.lesson);return;}
+    if(a==='start-practice'){loadLesson('first',true);return;}
+    if(a==='tutorial-next'||a==='tutorial-prev'){
+        learning.step=Math.max(0,Math.min(TUTORIAL.length-1,learning.step+(a==='tutorial-next'?1:-1)));saveLearning();renderLearning();$('sim-tutorial-title').focus();return;
+    }
+    if(a==='tutorial-done'){learning.open=false;saveLearning();$('sim-school').open=false;status('Puedes volver a la ayuda en cualquier momento. Prueba ahora otro ejemplo.');$('sim-practice-guide').scrollIntoView({block:'start'});return;}
+    if(a==='focus-first'){
+        const input=$('sim-0-qty');if(input){input.scrollIntoView({block:'center'});input.focus();}else status('Carga la primera práctica desde el paso 1 para ver sus campos.');return;
+    }
+    if(a==='tutorial-price'||a==='practice-price'){
+        if(a==='tutorial-price'&&state.practiceExample!=='first'){status('Carga la primera práctica para este ejercicio.');return;}
+        if(a==='practice-price'&&!['call','put','covered','short-put'].includes(state.practiceExample))return;
+        state.positions.forEach(p=>{p.target=Number(button.dataset.value);});persist();renderPositions();renderResults();return;
+    }
+    if(a==='quiz'){learning.answer=button.dataset.answer;saveLearning();renderLearning();return;}
+    if(a==='restore-practice'&&practiceBackup){state=structuredClone(practiceBackup);practiceBackup=null;quoteRequest++;try{localStorage.removeItem(PRACTICE_BACKUP);}catch(_){}persist();render();status('Has recuperado la simulación que tenías antes de cargar las prácticas.');return;}
     if(a==='add-stock')add('stock');if(a==='add-call')add('call');if(a==='add-put')add('put');
     if(a==='choose'){const item=matches[index];if(item)add('stock',item);}
     if(a==='remove'){state.positions.splice(index,1);quoteRequest++;persist();renderPositions();renderResults();}
     if(a==='quotes')await loadQuotes(); if(a==='search')await searchOnline();
     if(a==='results')$('sim-result').scrollIntoView({behavior:'smooth',block:'start'});
-    if(a==='example')example();
     if(a==='new'){state=defaults();quoteRequest++;shock=0;persist();render();}
     if(a==='save'){
         if(validate(state).length){status('Completa los datos antes de guardar un escenario. Tus cambios actuales siguen guardados como borrador.');return;}
@@ -222,7 +302,9 @@ async function action(event) {
 }
 function init(){
     try {const stored=JSON.parse(localStorage.getItem(KEY)||'null');if(stored?.schema===1&&Array.isArray(stored.positions)&&stored.positions.length<=100)state={...defaults(),...stored};saved=JSON.parse(localStorage.getItem(SAVED)||'[]');if(!Array.isArray(saved))saved=[];saved=saved.filter(s=>s?.schema===1&&!validate(s).length).slice(0,20);}catch(_){state=defaults();saved=[];}
+    try{const l=JSON.parse(localStorage.getItem(LEARNING)||'null');if(l)learning={simple:l.simple!==false,open:l.open===true,tab:['tutorial','examples','glossary'].includes(l.tab)?l.tab:'tutorial',step:Number.isInteger(l.step)?Math.min(Math.max(l.step,0),TUTORIAL.length-1):0,answer:['yes','no'].includes(l.answer)?l.answer:null};const b=JSON.parse(localStorage.getItem(PRACTICE_BACKUP)||'null');if(b?.schema===1&&Array.isArray(b.positions)&&b.positions.length<=100)practiceBackup=b;}catch(_){}
     render();const root=$('screen-simulator');root.addEventListener('change',handleChange);root.addEventListener('click',event=>{action(event).catch(e=>status(e.message));});
+    root.addEventListener('toggle',event=>{if(event.target.id==='sim-school'){learning.open=event.target.open;saveLearning();}},true);
     root.addEventListener('input',event=>{if(event.target.id==='sim-search')searchLocal();if(event.target.id==='sim-shock'){shock=Number(event.target.value);sensitivity();}});
     root.addEventListener('keydown',event=>{if(event.target.id==='sim-search'&&event.key==='Enter')searchOnline();});
     root.addEventListener('change',async event=>{
