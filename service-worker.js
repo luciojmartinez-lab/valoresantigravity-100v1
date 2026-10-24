@@ -1,69 +1,42 @@
-const CACHE_NAME = 'valores-pwa-100v9';
-const APP_SHELL = [
-  '/',
-  '/index.html',
-  '/manifest.json',
-  '/icons/icon-192.png',
-  '/icons/icon-512.png'
-];
-
+const BUILD = '__APP_BUILD__';
+const CACHE_NAME = `valores-app-${BUILD}`;
+const SHELL = ['/', '/index.html', '/app.js', '/catalogo.css', '/updates.js', '/manifest.json', '/icons/icon-192.png', '/icons/icon-512.png'];
 self.addEventListener('install', event => {
-  event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => cache.addAll(APP_SHELL))
-      .then(() => self.skipWaiting())
-  );
+    event.waitUntil((async () => {
+        const cache = await caches.open(CACHE_NAME);
+        await cache.addAll(SHELL.map(path => new Request(path, {cache: 'reload'})));
+        await self.skipWaiting();
+    })());
 });
-
 self.addEventListener('activate', event => {
-  event.waitUntil(
-    caches.keys()
-      .then(keys => Promise.all(
-        keys
-          .filter(key => key !== CACHE_NAME)
-          .map(key => caches.delete(key))
-      ))
-      .then(() => self.clients.claim())
-  );
+    event.waitUntil((async () => {
+        const keys = await caches.keys();
+        await Promise.all(keys.filter(key => key !== CACHE_NAME && (key.startsWith('valores-app-') || key.startsWith('valores-pwa-'))).map(key => caches.delete(key)));
+        await self.clients.claim();
+    })());
 });
-
+self.addEventListener('message', event => {
+    if (event.data?.type === 'SKIP_WAITING') self.skipWaiting();
+});
 self.addEventListener('fetch', event => {
-  const request = event.request;
-  const url = new URL(request.url);
-
-  if (request.method !== 'GET') {
-    return;
-  }
-
-  if (url.pathname.startsWith('/.netlify/functions/')) {
-    event.respondWith(
-      fetch(request).catch(() => caches.match('/index.html'))
-    );
-    return;
-  }
-
-  if (request.mode === 'navigate') {
-    event.respondWith(
-      fetch(request)
-        .then(response => {
-          const copy = response.clone();
-          caches.open(CACHE_NAME).then(cache => cache.put('/index.html', copy));
-          return response;
-        })
-        .catch(() => caches.match('/index.html'))
-    );
-    return;
-  }
-
-  event.respondWith(
-    caches.match(request).then(cached => {
-      return cached || fetch(request).then(response => {
-        if (url.origin === self.location.origin && response.ok) {
-          const copy = response.clone();
-          caches.open(CACHE_NAME).then(cache => cache.put(request, copy));
+    const request = event.request;
+    const url = new URL(request.url);
+    if (request.method !== 'GET' || url.origin !== self.location.origin) return;
+    const isApi = url.pathname.startsWith('/api/') || url.pathname.startsWith('/.netlify/functions/');
+    const isVersion = url.pathname === '/version.json' || url.pathname === '/service-worker.js';
+    if (isApi || isVersion) {
+        event.respondWith(fetch(request, {cache: 'no-store'}).catch(() => new Response(JSON.stringify({error: 'Sin conexión. Se conservan los últimos datos disponibles.'}), {status: 503, headers: {'Content-Type': 'application/json'}})));
+        return;
+    }
+    event.respondWith((async () => {
+        const cache = await caches.open(CACHE_NAME);
+        try {
+            const response = await fetch(request, {cache: 'no-store'});
+            if (response.ok && response.type === 'basic') await cache.put(request.mode === 'navigate' ? '/index.html' : request, response.clone());
+            return response;
+        } catch (_) {
+            return await cache.match(request.mode === 'navigate' ? '/index.html' : request)
+                || new Response('No hay una copia disponible sin conexión.', {status: 503});
         }
-        return response;
-      });
-    })
-  );
+    })());
 });

@@ -1,0 +1,30 @@
+.settings-scroll { max-width: 980px; }
+.settings-section h3 { font-size: 14px; }
+.settings-section p { font-size: 12px; line-height: 1.5; }
+.catalogue-controls { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+.catalogue-controls input, .catalogue-controls select, #refresh-mode { padding: 9px 10px; border: 1px solid var(--border-light); border-radius: 6px; font: inherit; font-size: 12px; background: white; color: var(--text-dark); }
+.catalogue-controls input { flex: 1; min-width: 160px; }
+.catalogue-button { padding: 8px 12px; background: var(--primary-blue); border: 0; border-radius: 6px; color: white; cursor: pointer; font-size: 12px; }
+.catalogue-button.secondary { color: var(--text-dark); background: #e2e8f0; }
+button:disabled { opacity: .5; cursor: default; }
+.catalogue-pagination { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 10px 0; font-size: 12px; }
+.table-scroll-container { max-height: 420px; }
+.etf-table { font-size: 12px; }
+.etf-table td, .etf-table th { padding: 10px 8px; }
+.etf-table input { width: 17px; height: 17px; }
+.selection-chip { font-size: 11px; padding: 5px 8px; margin: 3px; border: 1px solid #bfdbfe; border-radius: 20px; color: #1d4ed8; background: #eff6ff; cursor: pointer; }
+#selected-list { max-height: 120px; overflow-y: auto; margin-bottom: 12px; }
+.market-toolbar { flex-shrink: 0; display: flex; align-items: center; padding: 8px 12px; gap: 12px; background: #e8f1fc; border-bottom: 1px solid #cadcf3; }
+#market-status { font-size: 11px; color: #334155; line-height: 1.4; }
+.quote-note { font-size: 9px; color: #64748b; margin: 3px 0; line-height: 1.4; overflow-wrap: anywhere; }
+.asset-symbol { font-size: 9px; font-weight: 600; color: #64748b; margin-top: 4px; }
+.card-title { white-space: normal !important; overflow-wrap: anywhere; }
+.card-top { flex-wrap: wrap; gap: 4px; }
+.empty-column { padding: 14px 10px; font-size: 12px; color: #64748b; }
+.modal-box { max-width: 640px; }
+.modal-chart-body { display: block; height: 300px; min-height: 220px; }
+#chart-status { padding: 6px 14px; font-size: 11px; line-height: 1.4; color: #64748b; }
+#screen-dashboard { min-height: 0; }
+.main-container { min-height: 0; }
+@media (min-width: 1024px) { .grid-col { width: 178px !important; } }
+@media (max-width: 600px) { .grid-col { width: 155px; } .catalogue-controls select { width: 100%; } .etf-table { font-size: 11px; } }

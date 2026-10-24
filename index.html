@@ -3,34 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="app-build" content="__APP_BUILD__">
     <meta name="theme-color" content="#1976d2">
-    <meta name="background-color" content="#f1f5f9">
-    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="Valores">
     <link rel="manifest" href="/manifest.json">
     <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
     <link rel="apple-touch-icon" href="/icons/icon-192.png">
-    <title>Consulta de Valores por Lucio J, Martinez 100v11</title>
+    <script src="/updates.js" defer></script>
+    <title>Consulta de Valores por Lucio J, Martinez 100v14</title>
     <!-- Chart.js para los gráficos interactivos -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
+
     <style>
         :root {
-            --primary-blue: #1976d2; 
+            --primary-blue: #1976d2;
             --primary-hover: #1565c0;
-            --bg-main: #f1f5f9;      
+            --bg-main: #f1f5f9;
             --bg-card: #ffffff;
             --text-dark: #1e293b;
             --text-muted: #64748b;
             --border-light: #e2e8f0;
-            
+
             --success: #10b981;
             --success-bg: #ecfdf5;
             --danger: #ef4444;
             --danger-bg: #fef2f2;
-            
+
             --btn-blue-bg: #eff6ff;
             --btn-blue-text: #1d4ed8;
         }
@@ -39,11 +38,6 @@
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-        }
-
-        html {
-            -webkit-text-size-adjust: 100%;
-            text-size-adjust: 100%;
         }
 
         body {
@@ -70,7 +64,7 @@
             flex-shrink: 0;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
-        
+
         .navbar-row-title {
             display: flex;
             justify-content: space-between;
@@ -173,7 +167,7 @@
         }
         .dashboard-scroll {
             flex: 1;
-            overflow-x: auto; 
+            overflow-x: auto;
             overflow-y: hidden;
             display: flex;
             -webkit-overflow-scrolling: touch;
@@ -182,11 +176,11 @@
             display: flex;
             gap: 4px;
             height: 100%;
-            width: max-content; 
+            width: max-content;
         }
-        
+
         .grid-col {
-            width: 114px; 
+            width: 114px;
             background-color: rgba(255, 255, 255, 0.65);
             border-radius: 8px;
             border: 1px solid var(--border-light);
@@ -199,31 +193,8 @@
         #col-wrapper-2 {
             width: 128px !important; /* EE.UU. más ancho para que quepa "Años" */
         }
-        #col-wrapper-3,
-        #col-wrapper-4 {
-            width: 150px !important;
-        }
-        #col-3 .value-card {
-            min-height: 78px;
-        }
-        #col-3 .card-title {
-            font-size: 8px;
-            line-height: 1.05;
-        }
-        #col-3 .card-price {
-            font-size: 9.5px;
-        }
-        #col-4 .value-card {
-            min-height: 92px;
-        }
-        #col-4 .card-title {
-            font-size: 8.5px;
-            line-height: 1.1;
-        }
-        #col-4 .card-price {
-            font-size: 10px;
-            line-height: 1.15;
-            white-space: normal;
+        #col-wrapper-3 {
+            width: 135px !important; /* España más ancho */
         }
 
         .col-header {
@@ -242,7 +213,7 @@
         .col-content {
             flex: 1;
             overflow-y: auto;
-            padding: 4px 4px calc(72px + env(safe-area-inset-bottom, 0px)) 4px;
+            padding: 4px;
             display: flex;
             flex-direction: column;
             gap: 4px;
@@ -264,16 +235,16 @@
             align-items: flex-start;
             gap: 2px;
         }
-        
+
         .card-title {
             font-size: 8.5px;
             font-weight: 700;
             color: var(--text-dark);
-            white-space: normal; 
+            white-space: normal;
             line-height: 1.1;
             word-break: break-word;
         }
-        
+
         .card-change {
             font-size: 7.5px;
             font-weight: 700;
@@ -304,8 +275,8 @@
         }
 
         .price-updating {
-            background-color: #fef08a !important; 
-            color: #ef4444 !important;            
+            background-color: #fef08a !important;
+            color: #ef4444 !important;
         }
 
         .card-future {
@@ -316,16 +287,6 @@
             white-space: nowrap;
         }
 
-        .card-meta {
-            color: var(--text-muted);
-            font-size: 7.5px;
-            font-weight: 600;
-            margin-top: 1px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
         .card-actions {
             display: flex;
             gap: 3px;
@@ -333,17 +294,6 @@
             margin-top: 3px;
             border-top: 1px solid #f1f5f9;
             padding-top: 3px;
-        }
-        .card-actions-label {
-            flex: 1;
-            min-width: 0;
-            color: var(--text-muted);
-            font-size: 7.5px;
-            font-weight: 700;
-            align-self: center;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
         }
         .btn-action {
             padding: 2.5px;
@@ -369,16 +319,6 @@
         /* DISEÑO DE ESCRITORIO (PC) - CENTRADO Y MÁS GRANDE    */
         /* ---------------------------------------------------- */
         @media (min-width: 850px) {
-            .navbar-row-menu {
-                justify-content: flex-end;
-                gap: 8px;
-                padding: 8px 12px;
-            }
-            .nav-item {
-                flex: 0 0 auto;
-                min-width: 108px;
-                padding: 6px 16px;
-            }
             #screen-dashboard {
                 padding: 16px;
             }
@@ -394,18 +334,14 @@
                 border-radius: 12px;
             }
             #col-wrapper-2 {
-                width: 185px !important; 
+                width: 185px !important;
             }
-            #col-wrapper-3,
-            #col-wrapper-4 {
-                width: 195px !important; 
+            #col-wrapper-3 {
+                width: 195px !important;
             }
             .col-header {
                 font-size: 11px;
                 padding: 10px;
-            }
-            .col-content {
-                padding-bottom: 8px;
             }
             .value-card {
                 padding: 8px 10px;
@@ -425,9 +361,6 @@
             }
             .card-future {
                 font-size: 10px;
-            }
-            .card-meta {
-                font-size: 9px;
             }
             .btn-action {
                 padding: 4px;
@@ -469,8 +402,8 @@
         .settings-section { background-color: var(--bg-card); padding: 12px; border-radius: 10px; border: 1px solid var(--border-light); }
         .settings-section h3 { font-size: 11px; font-weight: 700; color: #334155; margin-bottom: 8px; border-left: 3px solid var(--primary-blue); padding-left: 6px; }
         .settings-section p { font-size: 10px; color: var(--text-muted); margin-bottom: 8px; }
-        .currency-selectors { display: flex; flex-wrap: wrap; gap: 6px; }
-        .btn-currency { flex: 1 1 82px; padding: 6px; border: 1px solid var(--border-light); background-color: var(--bg-card); border-radius: 6px; font-size: 10px; font-weight: 600; cursor: pointer; text-align: center; }
+        .currency-selectors { display: flex; gap: 6px; }
+        .btn-currency { flex: 1; padding: 6px; border: 1px solid var(--border-light); background-color: var(--bg-card); border-radius: 6px; font-size: 10px; font-weight: 600; cursor: pointer; text-align: center; }
         .btn-currency.active { background-color: var(--primary-blue); color: white; border-color: var(--primary-blue); }
         .table-scroll-container { border: 1px solid var(--border-light); border-radius: 6px; max-height: 180px; overflow-y: auto; background-color: #f8fafc; }
         .etf-table { width: 100%; border-collapse: collapse; font-size: 9.5px; text-align: left; }
@@ -494,10 +427,9 @@
         .modal-close { background: none; border: none; font-size: 18px; font-weight: 700; color: var(--text-muted); cursor: pointer; }
         .modal-controls { padding: 6px 14px; background-color: #f8fafc; border-bottom: 1px solid var(--border-light); display: flex; justify-content: space-between; align-items: center; font-size: 10px; }
         .modal-select { background-color: var(--bg-card); border: 1px solid var(--border-light); border-radius: 4px; padding: 1px 4px; font-weight: 500; outline: none; }
-        .chart-source-badge { margin-left: auto; margin-right: 8px; padding: 2px 6px; border-radius: 4px; background-color: #ecfdf5; color: #047857; font-size: 8.5px; font-weight: 700; white-space: nowrap; }
-        .chart-source-badge.simulated { background-color: #fff7ed; color: #c2410c; }
         .modal-chart-body { padding: 12px; flex: 1; display: flex; align-items: center; justify-content: center; min-height: 220px; }
     </style>
+    <link rel="stylesheet" href="catalogo.css">
 </head>
 <body>
 
@@ -506,11 +438,11 @@
             <div class="nav-branding">
                 <span class="nav-title">Consulta de Valores</span>
                 <span class="nav-subtitle">
-                    <span class="live-indicator"></span> Yahoo Finance 
+                    <span class="live-indicator"></span> Yahoo Finance · Banco de España
                     <span id="refresh-timer">--:--</span>
                 </span>
             </div>
-            <span class="version-badge">100v11</span>
+            <span class="version-badge">100v14</span>
         </div>
         <div class="navbar-row-menu">
             <button onclick="switchScreen('welcome')" id="nav-welcome" class="nav-item">Inicio</button>
@@ -519,6 +451,10 @@
         </div>
     </div>
 
+    <div class="market-toolbar">
+        <button type="button" id="refresh-market" class="catalogue-button">Actualizar valores</button>
+        <span id="market-status" role="status" aria-live="polite">Preparando consulta…</span>
+    </div>
     <div class="main-container">
 
         <!-- PANTALLA 1: BIENVENIDA -->
@@ -526,13 +462,13 @@
             <div class="welcome-card">
                 <span class="welcome-icon">📈</span>
                 <h1 class="welcome-title">Consulta de Valores</h1>
-                <p class="welcome-author">Por Lucio J, Martinez 100v11</p>
-                
+                <p class="welcome-author">Por Lucio J, Martinez 100v14</p>
+
                 <div class="welcome-time-box">
                     <p id="welcome-date" class="welcome-date">-- de -- de ----</p>
                     <p id="welcome-time" class="welcome-time">00:00:00</p>
                 </div>
-                
+
                 <button onclick="switchScreen('dashboard')" class="btn-enter">
                     Ingresar al Panel
                 </button>
@@ -543,7 +479,7 @@
         <div id="screen-dashboard" class="hidden">
             <div class="dashboard-scroll">
                 <div class="dashboard-grid">
-                    
+
                     <div class="grid-col">
                         <div class="col-header">Metales & Energía</div>
                         <div id="col-1" class="col-content"></div>
@@ -555,18 +491,22 @@
                     </div>
 
                     <div id="col-wrapper-3" class="grid-col">
-                        <div class="col-header">Indices & Divisas</div>
+                        <div class="col-header">Renta fija Europa & IBEX</div>
                         <div id="col-3" class="col-content"></div>
                     </div>
 
-                    <div id="col-wrapper-4" class="grid-col">
-                        <div class="col-header">ETFs Opcionales</div>
+                    <div class="grid-col">
+                        <div class="col-header">Índices & Divisas</div>
                         <div id="col-4" class="col-content"></div>
                     </div>
 
                     <div class="grid-col">
-                        <div class="col-header">Espana</div>
+                        <div class="col-header">ETF seleccionados</div>
                         <div id="col-5" class="col-content"></div>
+                    </div>
+                    <div class="grid-col">
+                        <div class="col-header">Acciones España</div>
+                        <div id="col-6" class="col-content"></div>
                     </div>
 
                 </div>
@@ -576,10 +516,10 @@
         <!-- PANTALLA 3: CONFIGURACIÓN -->
         <div id="screen-settings" class="hidden">
             <div class="settings-scroll">
-                
+
                 <div class="settings-section">
                     <h3>Moneda de Visualización Principal</h3>
-                    <p>Configura la divisa de conversion de la plataforma:</p>
+                    <p>Elige EUR o USD para los precios. Los índices se muestran en puntos y las rentabilidades de deuda en porcentaje. Si falta el cambio, se indica la moneda de origen.</p>
                     <div class="currency-selectors">
                         <button onclick="setCurrency('EUR')" id="btn-curr-EUR" class="btn-currency">EUR (€)</button>
                         <button onclick="setCurrency('USD')" id="btn-curr-USD" class="btn-currency">USD ($)</button>
@@ -587,23 +527,49 @@
                 </div>
 
                 <div class="settings-section">
-                    <h3>Selección de ETFs Opcionales</h3>
-                    <p>Marca los ETFs que se visualizaran en la columna opcional:</p>
-                    
+                    <h3>Elegir ETF y acciones españolas</h3>
+                    <p>Busca por nombre o ticker y marca los activos que quieras ver. El catálogo reúne las páginas completas disponibles en Yahoo para ETF cotizados en EE.UU. y Europa y acciones del mercado español; incluye varias cotizaciones de un mismo fondo. La disponibilidad depende de Yahoo.</p>
+                    <p id="catalogue-status" role="status" aria-live="polite">Cargando catálogo…</p>
+                    <div class="catalogue-controls">
+                        <select id="asset-group" aria-label="Tipo de activo">
+                            <option value="">Todos los activos</option>
+                            <option value="us">ETF · Estados Unidos</option>
+                            <option value="eu">ETF · Europa</option>
+                            <option value="es">Acciones · España</option>
+                            <option value="bonds">Renta fija · Europa</option>
+                            <option value="selected">Solo seleccionados</option>
+                        </select>
+                        <input type="search" id="asset-search" aria-label="Buscar por nombre o ticker" placeholder="Nombre o ticker: Santander, VWCE, SPY…">
+                        <button type="button" id="search-online" class="catalogue-button">Buscar en Yahoo</button>
+                    </div>
+                    <div class="catalogue-pagination">
+                        <strong id="selected-count"></strong>
+                        <button type="button" id="refresh-catalogue" class="catalogue-button secondary">Recargar catálogo</button>
+                    </div>
+                    <div id="selected-list" aria-label="Activos seleccionados"></div>
                     <div class="table-scroll-container">
                         <table class="etf-table">
-                            <thead>
-                                <tr>
-                                    <th class="checkbox-cell">Ver</th>
-                                    <th>Ticker</th>
-                                    <th>Nombre</th>
-                                    <th>Descripción</th>
-                                </tr>
-                            </thead>
-                            <tbody id="etf-table-body">
-                            </tbody>
+                            <thead><tr><th class="checkbox-cell">Ver</th><th>Ticker</th><th>Nombre</th><th>Mercado</th><th>Divisa</th></tr></thead>
+                            <tbody id="etf-table-body"></tbody>
                         </table>
                     </div>
+                    <div class="catalogue-pagination">
+                        <button type="button" id="previous-page" class="catalogue-button secondary">Anterior</button>
+                        <span id="catalogue-count" role="status"></span>
+                        <button type="button" id="next-page" class="catalogue-button secondary">Siguiente</button>
+                    </div>
+                    <p id="online-status" role="status" aria-live="polite">El catálogo se renueva con las publicaciones del programa. La búsqueda local recorre todos sus registros. «Buscar en Yahoo» comprueba nuevas incorporaciones y tickers concretos.</p>
+                    <div class="table-scroll-container hidden" id="online-results">
+                        <table class="etf-table"><thead><tr><th>Ver</th><th>Ticker</th><th>Nombre</th><th>Mercado</th><th>Divisa</th></tr></thead><tbody id="online-table-body"></tbody></table>
+                    </div>
+                </div>
+                <div class="settings-section">
+                    <h3>Consultas y renta fija</h3>
+                    <label for="refresh-mode">Actualización de cotizaciones:</label>
+                    <select id="refresh-mode"><option value="manual">Al abrir, al volver y manual</option><option value="auto">Al abrir y cada 5 minutos mientras esté visible</option></select>
+                    <p>Solo se consultan los activos del panel y los cambios de divisa necesarios. El catálogo no descarga todos sus precios.</p>
+                    <p>La renta fija española y la referencia alemana a 10 años proceden de las series diarias del Banco de España. Son rentabilidades de referencia del mercado secundario, no precios de bonos individuales ni resultados de subastas. Se muestra la fecha de la última observación disponible.</p>
+                    <p><a href="https://www.bde.es/webbe/es/estadisticas/compartido/datos/pdf/si_1_2.pdf" target="_blank" rel="noopener noreferrer">Fuente: Banco de España · Indicadores financieros diarios</a></p>
                 </div>
 
                 <div class="settings-section">
@@ -615,9 +581,16 @@
                         </button>
                         <label class="btn-backup btn-import-label">
                             Importar JSON
-                            <input type="file" id="import-file" class="hidden" onchange="importBackup(event)">
+                            <input type="file" accept=".json,application/json" id="import-file" class="hidden" onchange="importBackup(event)">
                         </label>
                     </div>
+                    <p id="backup-status" role="status" aria-live="polite"></p>
+                </div>
+
+                <div class="settings-section">
+                    <h3>Actualización del programa</h3>
+                    <p id="program-update-status" role="status" aria-live="polite">Comprobando la versión publicada…</p>
+                    <p>Al abrir o volver a la aplicación se carga automáticamente una versión nueva si está disponible. Sin conexión se conserva la copia de este dispositivo.</p>
                 </div>
 
             </div>
@@ -631,745 +604,27 @@
             <div class="modal-header">
                 <div>
                     <h3 id="modal-title">Gráfico de Activo</h3>
-                    <p>Histórico del activo seleccionado</p>
+                    <p>Histórico real en la unidad de origen</p>
                 </div>
                 <button onclick="closeChartModal()" class="modal-close">&times;</button>
             </div>
-            
+
             <div class="modal-controls">
                 <span>Periodo:</span>
-                <span id="chart-source-badge" class="chart-source-badge">--</span>
                 <select id="chart-timeframe" onchange="updateChartData()" class="modal-select">
-                    <option value="day">Día</option>
-                    <option value="week">Semana</option>
                     <option value="month">Último mes</option>
                     <option value="year">Año actual</option>
                     <option value="5years">Últimos 5 años</option>
                 </select>
             </div>
 
+            <p id="chart-status" role="status" aria-live="polite"></p>
             <div class="modal-chart-body">
                 <canvas id="historyChart"></canvas>
             </div>
         </div>
     </div>
 
-    <script>
-        // CONFIGURACIÓN INICIAL
-        let currentCurrency = 'USD';
-        const currencySymbols = { EUR: '€', USD: '$' };
-        let eurToUsd = 1.16; 
-
-        // CRONÓMETRO DE ACTUALIZACIÓN
-        let countdownSeconds = 300; // 5 minutos exactos
-        let countdownTimerId = null;
-        let lastMarketMessage = 'Pendiente';
-
-        // Base de Datos Estructural (Tickers reales para la conexión)
-        const assetDatabase = {
-            oro: { name: "Oro (oz)", ticker: "GC=F", base: 4540.00, col: 1, nativeCurrency: 'USD', change: 0 }, 
-            plata: { name: "Plata (oz)", ticker: "SI=F", base: 76.25, col: 1, nativeCurrency: 'USD', change: 0 },  
-            bitcoin: { name: "Bitcoin", ticker: "BTC-USD", base: 76700.00, col: 1, nativeCurrency: 'USD', change: 0 }, 
-            ethereum: { name: "Ethereum", ticker: "ETH-USD", base: 3350.00, col: 1, nativeCurrency: 'USD', change: 0 }, 
-            brent: { name: "Crudo Brent", ticker: "BZ=F", base: 100.00, col: 1, nativeCurrency: 'USD', change: 0 },  
-
-            letrasUS1A: { name: "EE.UU. - 1 Año", ticker: "^IRX", base: 4.50, col: 2, isYield: true, change: 0 },
-            letrasUS5A: { name: "EE.UU. - 5 Años", ticker: "^FVX", base: 4.25, col: 2, isYield: true, change: 0 },
-            letrasUS10A: { name: "EE.UU. - 10 Años", ticker: "^TNX", base: 4.18, col: 2, isYield: true, change: 0 },
-            letrasUS30A: { name: "EE.UU. - 30 Años", ticker: "^TYX", base: 4.35, col: 2, isYield: true, change: 0 },
-
-            ibex35: { name: "IBEX 35", ticker: "^IBEX", base: 18290.90, col: 5, nativeCurrency: 'EUR', market: 'ES', change: 0 }, 
-            santander: { name: "Santander", ticker: "SAN.MC", base: 10.40, col: 5, nativeCurrency: 'EUR', market: 'ES', change: 0 },
-            bbva: { name: "BBVA", ticker: "BBVA.MC", base: 19.80, col: 5, nativeCurrency: 'EUR', market: 'ES', change: 0 },
-            caixabank: { name: "CaixaBank", ticker: "CABK.MC", base: 11.40, col: 5, nativeCurrency: 'EUR', market: 'ES', change: 0 },
-            inditex: { name: "Inditex", ticker: "ITX.MC", base: 53.00, col: 5, nativeCurrency: 'EUR', market: 'ES', change: 0 },
-            iberdrola: { name: "Iberdrola", ticker: "IBE.MC", base: 19.80, col: 5, nativeCurrency: 'EUR', market: 'ES', change: 0 },
-            ferrovial: { name: "Ferrovial", ticker: "FER.MC", base: 60.50, col: 5, nativeCurrency: 'EUR', market: 'ES', change: 0 },
-
-            sp500: { name: "S&P 500", ticker: "^GSPC", base: 7519.12, col: 3, nativeCurrency: 'USD', isUSMarket: true, change: 0 },      
-            nasdaq: { name: "Nasdaq 100", ticker: "^NDX", base: 29994.00, col: 3, nativeCurrency: 'USD', isUSMarket: true, change: 0 },  
-            dowjones: { name: "Dow Jones", ticker: "^DJI", base: 50461.68, col: 3, nativeCurrency: 'USD', isUSMarket: true, change: 0 }, 
-            dolareuro: { name: "EUR/USD", ticker: "EURUSD=X", base: 1.1600, col: 3, isForex: true, baseCurrency: 'EUR', quoteCurrency: 'USD', forexName: 'Dólar estadounidense', change: 0 },     
-            eurosek: { name: "EUR/SEK", ticker: "EURSEK=X", base: 10.83, col: 3, isForex: true, baseCurrency: 'EUR', quoteCurrency: 'SEK', forexName: 'Corona sueca', change: 0 },
-            euronok: { name: "EUR/NOK", ticker: "EURNOK=X", base: 10.80, col: 3, isForex: true, baseCurrency: 'EUR', quoteCurrency: 'NOK', forexName: 'Corona noruega', change: 0 },
-            eurodkk: { name: "EUR/DKK", ticker: "EURDKK=X", base: 7.47, col: 3, isForex: true, baseCurrency: 'EUR', quoteCurrency: 'DKK', forexName: 'Corona danesa', change: 0 },
-            europln: { name: "EUR/PLN", ticker: "EURPLN=X", base: 4.23, col: 3, isForex: true, baseCurrency: 'EUR', quoteCurrency: 'PLN', forexName: 'Zloty polaco', change: 0 },
-            eurogbp: { name: "EUR/GBP", ticker: "EURGBP=X", base: 0.86, col: 3, isForex: true, baseCurrency: 'EUR', quoteCurrency: 'GBP', forexName: 'Libra esterlina', change: 0 },
-            eurojpy: { name: "EUR/JPY", ticker: "EURJPY=X", base: 186.00, col: 3, isForex: true, baseCurrency: 'EUR', quoteCurrency: 'JPY', forexName: 'Yen japonés', change: 0 },
-            eurokrw: { name: "EUR/KRW", ticker: "EURKRW=X", base: 1764.00, col: 3, isForex: true, baseCurrency: 'EUR', quoteCurrency: 'KRW', forexName: 'Won coreano', change: 0 },
-
-            voo: { name: "VOO (S&P 500)", ticker: "VOO", base: 626.00, col: 4, category: 'etf', nativeCurrency: 'USD', isUSMarket: true, desc: "Vanguard S&P 500, uno de los mayores ETFs por patrimonio", change: 0 },
-            ivv: { name: "IVV (S&P 500)", ticker: "IVV", base: 684.00, col: 4, category: 'etf', nativeCurrency: 'USD', isUSMarket: true, desc: "iShares Core S&P 500, alternativa grande y eficiente", change: 0 },
-            spy: { name: "SPY (S&P 500)", ticker: "SPY", base: 681.00, col: 4, category: 'etf', nativeCurrency: 'USD', isUSMarket: true, desc: "SPDR S&P 500, referencia muy liquida para trading", change: 0 },
-            vti: { name: "VTI (Mercado Total)", ticker: "VTI", base: 336.00, col: 4, category: 'etf', nativeCurrency: 'USD', isUSMarket: true, desc: "Vanguard Total Stock Market, mercado estadounidense amplio", change: 0 },
-            qqq: { name: "QQQ (Nasdaq 100)", ticker: "QQQ", base: 609.00, col: 4, category: 'etf', nativeCurrency: 'USD', isUSMarket: true, desc: "Invesco QQQ, grandes tecnológicas del Nasdaq", change: 0 },
-            vea: { name: "VEA (Desarrollados)", ticker: "VEA", base: 66.00, col: 4, category: 'etf', nativeCurrency: 'USD', isUSMarket: true, desc: "Vanguard FTSE Developed Markets, bolsa internacional desarrollada", change: 0 },
-            vwo: { name: "VWO (Emergentes)", ticker: "VWO", base: 48.00, col: 4, category: 'etf', nativeCurrency: 'USD', isUSMarket: true, desc: "Vanguard FTSE Emerging Markets, mercados emergentes", change: 0 },
-            agg: { name: "AGG (Bonos USA)", ticker: "AGG", base: 99.00, col: 4, category: 'etf', nativeCurrency: 'USD', isUSMarket: true, desc: "iShares Core U.S. Aggregate Bond, bonos diversificados", change: 0 },
-            bnd: { name: "BND (Bonos Total)", ticker: "BND", base: 73.00, col: 4, category: 'etf', nativeCurrency: 'USD', isUSMarket: true, desc: "Vanguard Total Bond Market, renta fija estadounidense", change: 0 },
-            gld: { name: "GLD (Oro)", ticker: "GLD", base: 466.00, col: 4, category: 'etf', nativeCurrency: 'USD', isUSMarket: true, desc: "SPDR Gold Shares, exposición popular al oro", change: 0 },
-            vug: { name: "VUG (Growth)", ticker: "VUG", base: 464.00, col: 4, category: 'etf', nativeCurrency: 'USD', isUSMarket: true, desc: "Vanguard Growth, acciones estadounidenses de crecimiento", change: 0 },
-            vtv: { name: "VTV (Value)", ticker: "VTV", base: 202.00, col: 4, category: 'etf', nativeCurrency: 'USD', isUSMarket: true, desc: "Vanguard Value, acciones estadounidenses de valor", change: 0 },
-            schd: { name: "SCHD (Dividendos)", ticker: "SCHD", base: 28.00, col: 4, category: 'etf', nativeCurrency: 'USD', isUSMarket: true, desc: "Schwab U.S. Dividend Equity, dividendos de calidad", change: 0 },
-            tlt: { name: "TLT (Bonos 20A+)", ticker: "TLT", base: 92.50, col: 4, category: 'etf', nativeCurrency: 'USD', isUSMarket: true, desc: "Bonos del Tesoro estadounidense a largo plazo", change: 0 }
-        };
-
-        let selectedETFs = ['voo', 'spy', 'qqq'];
-        let activePrices = {};
-        let currentScreen = 'welcome';
-
-        // INICIALIZACIÓN
-        window.addEventListener('DOMContentLoaded', () => {
-            loadLocalStorage();
-            initClock();
-            generatePricesIfEmpty();
-            renderDashboard();
-            renderSettings();
-            switchScreen(currentScreen || 'welcome');
-
-            // Solicitud de datos reales al iniciar la app
-            fetchRealMarketData();
-        });
-
-        // -----------------------------------------------------------------
-        // RELOJ DE CUENTA ATRÁS Y CONTROL DE ACTUALIZACIÓN DE 5 MINUTOS
-        // -----------------------------------------------------------------
-        function startCountdown() {
-            clearInterval(countdownTimerId);
-            countdownSeconds = 300; // Reset a 5 minutos (300 segundos)
-            updateCountdownUI();
-            
-            countdownTimerId = setInterval(() => {
-                countdownSeconds--;
-                updateCountdownUI();
-                
-                // Cuando llegue a 0, pedimos datos a internet y el reloj se reiniciará solo
-                if (countdownSeconds <= 0) {
-                    fetchRealMarketData();
-                }
-            }, 1000);
-        }
-
-        function updateCountdownUI() {
-            const min = Math.floor(countdownSeconds / 60);
-            const sec = countdownSeconds % 60;
-            const timeString = `${min}:${sec < 10 ? '0' : ''}${sec}`;
-            const el = document.getElementById('refresh-timer');
-            if (el) el.innerText = `${lastMarketMessage} | ${timeString}`;
-        }
-
-        // -----------------------------------------------------------------
-        // MOTOR DE CONEXIÓN A DATOS REALES (VIA NETLIFY FUNCTIONS)
-        // -----------------------------------------------------------------
-        async function fetchRealMarketData() {
-            const tickers = Object.values(assetDatabase).map(a => a.ticker).join(',');
-            
-            // Llamamos a nuestro propio backend en la nube de Netlify
-            const targetUrl = `/.netlify/functions/quote?symbols=${tickers},EURUSD=X`;
-
-            try {
-                const response = await fetch(targetUrl);
-                const data = await response.json();
-
-                if (!response.ok) {
-                    throw new Error(data && data.message ? data.message : `HTTP ${response.status}`);
-                }
-
-                if(data && data.quoteResponse && Array.isArray(data.quoteResponse.result)) {
-                    
-                    const eurusdQuote = data.quoteResponse.result.find(q => q.symbol === 'EURUSD=X');
-                    if (eurusdQuote && typeof eurusdQuote.regularMarketPrice === 'number') {
-                        eurToUsd = eurusdQuote.regularMarketPrice;
-                    }
-
-                    let updatedCount = 0;
-
-                    data.quoteResponse.result.forEach(quote => {
-                        const localKey = Object.keys(assetDatabase).find(key => assetDatabase[key].ticker === quote.symbol);
-                        
-                        if(localKey && activePrices[localKey] && typeof quote.regularMarketPrice === 'number') {
-                            activePrices[localKey].price = quote.regularMarketPrice;
-                            activePrices[localKey].change = typeof quote.regularMarketChangePercent === 'number'
-                                ? quote.regularMarketChangePercent
-                                : activePrices[localKey].change;
-                            activePrices[localKey].updatedAt = quote.regularMarketTime
-                                ? quote.regularMarketTime * 1000
-                                : Date.now();
-                            updatedCount++;
-                        }
-                    });
-
-                    if (updatedCount === 0) {
-                        throw new Error('La API no devolvio cotizaciones validas');
-                    }
-
-                    const nowText = new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
-                    const failedCount = Array.isArray(data.errors) ? data.errors.length : 0;
-                    lastMarketMessage = failedCount > 0 ? `Parcial ${nowText}` : `OK ${nowText}`;
-
-                    saveLocalStorage();
-                    renderDashboard();
-                    triggerFlashEffect();
-                } else {
-                    throw new Error('Respuesta de cotizaciones no valida');
-                }
-            } catch (error) {
-                lastMarketMessage = 'Error datos';
-                console.error("No se pudieron obtener datos reales.", error);
-            } finally {
-                // Haya funcionado o fallado, volvemos a iniciar la cuenta atrás de 5 minutos
-                startCountdown();
-            }
-        }
-
-        // DESTELLO VISUAL
-        function triggerFlashEffect() {
-            const priceElements = document.querySelectorAll('.card-price');
-            priceElements.forEach(el => {
-                if (el) el.classList.add('price-updating');
-            });
-
-            setTimeout(() => {
-                const updatedElements = document.querySelectorAll('.card-price');
-                updatedElements.forEach(el => {
-                    if (el) el.classList.remove('price-updating');
-                });
-            }, 1000);
-        }
-
-        // BOTÓN MANUAL: Si pulsas el botón, fuerza la actualización global inmediata
-        function updateAssetPrice(key) {
-            // Ponemos el reloj a 0 visualmente para que el usuario vea que está cargando
-            document.getElementById('refresh-timer').innerText = "Cargando...";
-            fetchRealMarketData();
-        }
-
-        function isNYSEClosed() {
-            try {
-                const nyTimeStr = new Date().toLocaleString("en-US", { timeZone: "America/New_York" });
-                const nyDate = new Date(nyTimeStr);
-                const day = nyDate.getDay(); 
-                const hours = nyDate.getHours();
-                const minutes = nyDate.getMinutes();
-
-                if (day === 0 || day === 6) return true;
-
-                const currentMinutes = hours * 60 + minutes;
-                const openMinutes = 9 * 60 + 30; // 9:30 AM
-                const closeMinutes = 16 * 60;    // 4:00 PM
-
-                return (currentMinutes < openMinutes || currentMinutes >= closeMinutes);
-            } catch (e) {
-                return false; 
-            }
-        }
-
-        function isBMESpainClosed() {
-            try {
-                const madridTimeStr = new Date().toLocaleString("en-US", { timeZone: "Europe/Madrid" });
-                const madridDate = new Date(madridTimeStr);
-                const day = madridDate.getDay();
-                const hours = madridDate.getHours();
-                const minutes = madridDate.getMinutes();
-
-                if (day === 0 || day === 6) return true;
-
-                const currentMinutes = hours * 60 + minutes;
-                const openMinutes = 9 * 60;
-                const closeMinutes = 17 * 60 + 30;
-
-                return currentMinutes < openMinutes || currentMinutes >= closeMinutes;
-            } catch (e) {
-                return false;
-            }
-        }
-
-        function formatSpanishNumber(value, isYield = false, isForex = false) {
-            let decimals = isForex ? 4 : 2;
-            let sign = value < 0 ? "-" : "";
-            let absValue = Math.abs(value);
-            
-            let parts = absValue.toFixed(decimals).split('.');
-            parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-            
-            return sign + parts.join(',');
-        }
-
-        function formatUpdateTime(timestamp) {
-            if (!timestamp) return 'Pendiente';
-            try {
-                return new Date(timestamp).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
-            } catch (e) {
-                return 'Pendiente';
-            }
-        }
-
-        function generatePricesIfEmpty() {
-            for (const key in assetDatabase) {
-                if(!activePrices[key]) {
-                    activePrices[key] = {
-                        price: assetDatabase[key].base,
-                        change: assetDatabase[key].change,
-                        updatedAt: null
-                    };
-                }
-            }
-        }
-
-        function renderDashboard() {
-            const nyClosed = isNYSEClosed();
-            const spainClosed = isBMESpainClosed();
-
-            for (let i = 1; i <= 5; i++) {
-                const colEl = document.getElementById(`col-${i}`);
-                if (colEl) colEl.innerHTML = '';
-            }
-
-            Object.keys(assetDatabase).forEach(key => {
-                const asset = assetDatabase[key];
-                if (!asset) return;
-                
-                if (asset.category === 'etf' && !selectedETFs.includes(key)) {
-                    return; 
-                }
-
-                const data = activePrices[key] || { price: asset.base, change: asset.change };
-                const isPositive = data.change >= 0;
-                const changeClass = isPositive ? 'change-up' : 'change-down';
-                const changeSign = isPositive ? '+' : '';
-
-                let priceDisplay = '';
-                const marketClosed = (asset.isUSMarket && nyClosed) || (asset.market === 'ES' && spainClosed);
-                let lockPrefix = marketClosed ? '🔒 ' : ''; 
-                
-                if (asset.isYield) {
-                    priceDisplay = `${formatSpanishNumber(data.price)} %`;
-                } else if (asset.isForex) {
-                    const baseCurrency = asset.baseCurrency || 'USD';
-                    const quoteCurrency = asset.quoteCurrency || 'EUR';
-                    priceDisplay = `1 ${baseCurrency} = ${formatSpanishNumber(data.price, false, true)} ${quoteCurrency}`;
-                } else {
-                    let calculatedValue = data.price;
-                    const displayCurrency = asset.market === 'ES' ? 'EUR' : currentCurrency;
-
-                    if (asset.nativeCurrency === 'USD' && displayCurrency === 'EUR') {
-                        calculatedValue = data.price / eurToUsd;
-                    } else if (asset.nativeCurrency === 'EUR' && displayCurrency === 'USD') {
-                        calculatedValue = data.price * eurToUsd;
-                    }
-
-                    priceDisplay = `${lockPrefix}${formatSpanishNumber(calculatedValue)} ${currencySymbols[displayCurrency]}`;
-                }
-
-                let futureHtml = '';
-                if (asset.isUSMarket && nyClosed) {
-                    let futureValue = data.price * 1.0006; 
-                    let calculatedFuture = futureValue;
-                    let currentFutureSymbol = currencySymbols[currentCurrency];
-
-                    if (asset.nativeCurrency === 'USD' && currentCurrency === 'EUR') {
-                        calculatedFuture = futureValue / eurToUsd;
-                    }
-                    futureHtml = `<div class="card-future">Futuro: ${formatSpanishNumber(calculatedFuture)} ${currentFutureSymbol}</div>`;
-                }
-
-                const updateHtml = `<div class="card-meta">Act: ${formatUpdateTime(data.updatedAt)}</div>`;
-                const actionsLabel = asset.isForex ? `<span class="card-actions-label">${asset.forexName || asset.quoteCurrency}</span>` : '';
-
-                const cardHtml = `
-                    <div class="value-card">
-                        <div class="card-top">
-                            <span class="card-title" title="${asset.name}">${asset.name}</span>
-                            <span class="card-change ${changeClass}">
-                                ${changeSign}${formatSpanishNumber(data.change)}%
-                            </span>
-                        </div>
-                        <div class="card-price">${priceDisplay}</div>
-                        ${futureHtml}
-                        ${updateHtml}
-                        <div class="card-actions">
-                            ${actionsLabel}
-                            <button onclick="updateAssetPrice('${key}')" class="btn-action" title="Actualizar Datos Reales Ahora">
-                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.21 15H19M9 5a9 9 0 010 18v-5h-.582m-15.356-2A8.001 8.001 0 112.79 9H5"></path></svg>
-                            </button>
-                            <button onclick="showChart('${key}')" class="btn-action btn-chart" title="Ver Histórico">
-                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 002 2h2a2 2 0 002-2z"></path></svg>
-                            </button>
-                        </div>
-                    </div>
-                `;
-
-                const colEl = document.getElementById(`col-${asset.col}`);
-                if (colEl) colEl.insertAdjacentHTML('beforeend', cardHtml);
-            });
-        }
-
-        function renderSettings() {
-            ['EUR', 'USD'].forEach(curr => {
-                const btn = document.getElementById(`btn-curr-${curr}`);
-                if (btn) {
-                    if (curr === currentCurrency) {
-                        btn.classList.add('active');
-                    } else {
-                        btn.classList.remove('active');
-                    }
-                }
-            });
-
-            const tbody = document.getElementById('etf-table-body');
-            if (tbody) {
-                tbody.innerHTML = '';
-
-                Object.keys(assetDatabase).forEach(key => {
-                    const asset = assetDatabase[key];
-                    if (asset && asset.category === 'etf') {
-                        const isChecked = selectedETFs.includes(key) ? 'checked' : '';
-                        const rowHtml = `
-                            <tr>
-                                <td class="checkbox-cell">
-                                    <input type="checkbox" value="${key}" ${isChecked} onchange="toggleETF('${key}')">
-                                </td>
-                                <td><span class="ticker-badge">${key.toUpperCase()}</span></td>
-                                <td><strong>${asset.name.replace(/.*\(|\)/g, '')}</strong></td>
-                                <td class="text-slate-500">${asset.desc}</td>
-                            </tr>
-                        `;
-                        tbody.insertAdjacentHTML('beforeend', rowHtml);
-                    }
-                });
-            }
-        }
-
-        function setCurrency(curr) {
-            currentCurrency = curr;
-            saveLocalStorage();
-            renderDashboard();
-            renderSettings();
-        }
-
-        function toggleETF(key) {
-            if (selectedETFs.includes(key)) {
-                selectedETFs = selectedETFs.filter(k => k !== key);
-            } else {
-                selectedETFs.push(key);
-            }
-            saveLocalStorage();
-            renderDashboard();
-        }
-
-        function exportBackup() {
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({
-                currentCurrency,
-                selectedETFs,
-                currentScreen
-            }));
-            const downloadAnchor = document.createElement('a');
-            downloadAnchor.setAttribute("href", dataStr);
-            downloadAnchor.setAttribute("download", `Copia_Valores100v13_LucioJMartinez.json`);
-            document.body.appendChild(downloadAnchor);
-            downloadAnchor.click();
-            downloadAnchor.remove();
-        }
-
-        function importBackup(event) {
-            const fileReader = new FileReader();
-            fileReader.onload = function(e) {
-                try {
-                    const parsed = JSON.parse(e.target.result);
-                    if (parsed.currentCurrency) currentCurrency = parsed.currentCurrency;
-                    if (parsed.selectedETFs) selectedETFs = parsed.selectedETFs;
-                    if (parsed.currentScreen) currentScreen = parsed.currentScreen;
-                    
-                    saveLocalStorage();
-                    renderDashboard();
-                    renderSettings();
-                    switchScreen(currentScreen || 'welcome');
-                    alert("Copia de seguridad importada con éxito.");
-                } catch (err) {
-                    alert("Error al procesar el archivo.");
-                }
-            };
-            fileReader.readAsText(event.target.files[0]);
-        }
-
-        function saveLocalStorage() {
-            try {
-                localStorage.setItem('val_100v13_currency', currentCurrency);
-                localStorage.setItem('val_100v13_selected_etfs', JSON.stringify(selectedETFs));
-                localStorage.setItem('val_100v13_current_screen', currentScreen);
-            } catch (e) {}
-        }
-
-        function loadLocalStorage() {
-            try {
-                const savedCurr = localStorage.getItem('val_100v13_currency');
-                const savedSelected = localStorage.getItem('val_100v13_selected_etfs');
-                const savedScreen = localStorage.getItem('val_100v13_current_screen');
-
-                if (savedCurr) {
-                    currentCurrency = savedCurr;
-                } else {
-                    currentCurrency = 'USD'; 
-                }
-                if (!['EUR', 'USD'].includes(currentCurrency)) {
-                    currentCurrency = 'USD';
-                }
-                
-                if (savedSelected) {
-                    selectedETFs = JSON.parse(savedSelected);
-                }
-                selectedETFs = selectedETFs.filter(key => assetDatabase[key]);
-                if (selectedETFs.length === 0) {
-                    selectedETFs = ['voo', 'spy', 'qqq'];
-                }
-                if (['welcome', 'dashboard', 'settings'].includes(savedScreen)) {
-                    currentScreen = savedScreen;
-                }
-            } catch (e) {
-                currentCurrency = 'USD'; 
-                selectedETFs = ['voo', 'spy', 'qqq'];
-                currentScreen = 'welcome';
-            }
-        }
-
-        function initClock() {
-            const updateTime = () => {
-                const now = new Date();
-                const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-                const dateEl = document.getElementById('welcome-date');
-                const timeEl = document.getElementById('welcome-time');
-                if (dateEl) dateEl.innerText = now.toLocaleDateString('es-ES', options);
-                if (timeEl) timeEl.innerText = now.toLocaleTimeString('es-ES');
-            };
-            updateTime();
-            setInterval(updateTime, 1000);
-        }
-
-        function switchScreen(screenId) {
-            currentScreen = ['welcome', 'dashboard', 'settings'].includes(screenId) ? screenId : 'welcome';
-            saveLocalStorage();
-
-            const screenWelcome = document.getElementById('screen-welcome');
-            const screenDashboard = document.getElementById('screen-dashboard');
-            const screenSettings = document.getElementById('screen-settings');
-            
-            if (screenWelcome) screenWelcome.classList.add('hidden');
-            if (screenDashboard) screenDashboard.classList.add('hidden');
-            if (screenSettings) screenSettings.classList.add('hidden');
-            
-            const navWelcome = document.getElementById('nav-welcome');
-            const navDashboard = document.getElementById('nav-dashboard');
-            const navSettings = document.getElementById('nav-item-settings');
-            
-            if (navWelcome) navWelcome.classList.remove('active');
-            if (navDashboard) navDashboard.classList.remove('active');
-            if (navSettings) navSettings.classList.remove('active');
-
-            const activeScreen = document.getElementById(`screen-${currentScreen}`);
-            if (activeScreen) activeScreen.classList.remove('hidden');
-            
-            if (currentScreen === 'settings') {
-                if (navSettings) navSettings.classList.add('active');
-            } else {
-                const activeNav = document.getElementById(`nav-${currentScreen}`);
-                if (activeNav) activeNav.classList.add('active');
-            }
-        }
-
-        let chartInstance = null;
-        let selectedAssetForChart = '';
-
-        function showChart(key) {
-            selectedAssetForChart = key;
-            const asset = assetDatabase[key];
-            const modalTitleEl = document.getElementById('modal-title');
-            if (modalTitleEl) modalTitleEl.innerText = asset.name;
-            
-            const timeframeEl = document.getElementById('chart-timeframe');
-            if (timeframeEl) timeframeEl.value = 'day';
-            
-            const modalEl = document.getElementById('chart-modal');
-            if (modalEl) modalEl.classList.remove('hidden');
-            
-            updateChartData();
-        }
-
-        function closeChartModal() {
-            const modalEl = document.getElementById('chart-modal');
-            if (modalEl) modalEl.classList.add('hidden');
-            
-            if (chartInstance) {
-                chartInstance.destroy();
-                chartInstance = null;
-            }
-        }
-
-        async function updateChartData() {
-            const key = selectedAssetForChart;
-            const asset = assetDatabase[key];
-            if (!asset) return;
-            
-            const timeframeEl = document.getElementById('chart-timeframe');
-            const timeframe = timeframeEl ? timeframeEl.value : 'month';
-            const currentPrice = activePrices[key]?.price || asset.base;
-            
-            let labels = [];
-            let data = [];
-            let usedRealData = false;
-
-            try {
-                const response = await fetch(`/.netlify/functions/history?symbol=${encodeURIComponent(asset.ticker)}&timeframe=${encodeURIComponent(timeframe)}`);
-                const history = await response.json();
-
-                if (response.ok && history && Array.isArray(history.points) && history.points.length > 1) {
-                    labels = history.points.map(point => formatHistoryLabel(point.timestamp, timeframe));
-                    data = history.points.map(point => point.close);
-                    usedRealData = true;
-                }
-            } catch (error) {
-                console.error("No se pudo obtener historico real.", error);
-            }
-            
-            if (!usedRealData && timeframe === 'day') {
-                const hours = 12;
-                for (let i = hours; i >= 0; i--) {
-                    const d = new Date();
-                    d.setHours(d.getHours() - i, 0, 0, 0);
-                    labels.push(d.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }));
-                }
-                data = simulateTrend(currentPrice, hours + 1, 0.006);
-            } else if (!usedRealData && timeframe === 'week') {
-                const days = 7;
-                for (let i = days; i >= 0; i--) {
-                    const d = new Date();
-                    d.setDate(d.getDate() - i);
-                    labels.push(d.toLocaleDateString('es-ES', { weekday: 'short', day: '2-digit' }));
-                }
-                data = simulateTrend(currentPrice, days + 1, 0.012);
-            } else if (!usedRealData && timeframe === 'month') {
-                const days = 30;
-                for (let i = days; i >= 0; i--) {
-                    const d = new Date();
-                    d.setDate(d.getDate() - i);
-                    labels.push(d.toLocaleDateString('es-ES', { day: '2-digit', month: 'short' }));
-                }
-                data = simulateTrend(currentPrice, days + 1, 0.02);
-            } else if (!usedRealData && timeframe === 'year') {
-                const months = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
-                const currentMonthIdx = new Date().getMonth();
-                for (let i = 0; i <= currentMonthIdx; i++) {
-                    labels.push(months[i]);
-                }
-                data = simulateTrend(currentPrice, labels.length, 0.06);
-            } else if (!usedRealData && timeframe === '5years') {
-                const currentYear = new Date().getFullYear();
-                for (let i = 4; i >= 0; i--) {
-                    labels.push(currentYear - i);
-                }
-                data = simulateTrend(currentPrice, 5, 0.15);
-            }
-
-            let unitToDisplay = asset.isYield ? '%' : currencySymbols[currentCurrency];
-            if (asset.market === 'ES') unitToDisplay = '€';
-            if (asset.isForex) unitToDisplay = ''; 
-
-            updateChartSourceBadge(usedRealData);
-            renderChart(labels, data, unitToDisplay);
-        }
-
-        function updateChartSourceBadge(usedRealData) {
-            const badge = document.getElementById('chart-source-badge');
-            if (!badge) return;
-
-            badge.textContent = usedRealData ? 'Histórico real' : 'Simulación';
-            badge.classList.toggle('simulated', !usedRealData);
-        }
-
-        function formatHistoryLabel(timestamp, timeframe) {
-            const date = new Date(timestamp * 1000);
-
-            if (timeframe === 'day') {
-                return date.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
-            }
-            if (timeframe === 'week') {
-                return date.toLocaleDateString('es-ES', { weekday: 'short', day: '2-digit' });
-            }
-            if (timeframe === 'year' || timeframe === '5years') {
-                return date.toLocaleDateString('es-ES', { month: 'short', year: '2-digit' });
-            }
-            return date.toLocaleDateString('es-ES', { day: '2-digit', month: 'short' });
-        }
-
-        function simulateTrend(targetPrice, steps, volatility) {
-            let result = [targetPrice];
-            for (let i = 1; i < steps; i++) {
-                const change = (Math.random() * 2 - 1) * volatility;
-                result.unshift(Number((result[0] * (1 - change)).toFixed(assetDatabase[selectedAssetForChart].isForex ? 4 : 2)));
-            }
-            return result;
-        }
-
-        function renderChart(labels, data, unit) {
-            const ctx = document.getElementById('historyChart').getContext('2d');
-            if (!ctx) return;
-            
-            if (chartInstance) {
-                chartInstance.destroy();
-            }
-
-            const firstValue = data && data.length ? data[0] : 0;
-            const lastValue = data && data.length ? data[data.length - 1] : firstValue;
-            const isChartUp = lastValue >= firstValue;
-            const lineColor = isChartUp ? '#10b981' : '#ef4444';
-            const fillColor = isChartUp ? 'rgba(16, 185, 129, 0.08)' : 'rgba(239, 68, 68, 0.08)';
-
-            chartInstance = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Cotización',
-                        data: data,
-                        borderColor: lineColor,
-                        backgroundColor: fillColor,
-                        borderWidth: 2,
-                        fill: true,
-                        tension: 0.15,
-                        pointRadius: 1.5,
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false }
-                    },
-                    scales: {
-                        x: {
-                            grid: { display: false },
-                            ticks: { font: { size: 9 } }
-                        },
-                        y: {
-                            grid: { color: '#f1f5f9' },
-                            ticks: { 
-                                font: { size: 9 },
-                                callback: function(value) { 
-                                    return formatSpanishNumber(value, false, assetDatabase[selectedAssetForChart].isForex) + ' ' + unit; 
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-        }
-
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/service-worker.js').catch(error => {
-                    console.error('No se pudo registrar el service worker.', error);
-                });
-            });
-        }
-    </script>
+    <script src="app.js"></script>
 </body>
 </html>

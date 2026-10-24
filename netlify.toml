@@ -1,5 +1,6 @@
 [build]
-  command = "npm install"
+  command = "node build.mjs"
+  publish = "public"
   functions = "netlify/functions"
 
 [build.environment]
@@ -8,13 +9,30 @@
 [functions]
   node_bundler = "esbuild"
 
+[[redirects]]
+  from = "/api/catalog"
+  to = "/catalogo.json"
+  status = 200
+  force = true
+
 [[headers]]
-  for = "/manifest.json"
+  for = "/*"
   [headers.values]
-    Content-Type = "application/manifest+json; charset=utf-8"
+    Cache-Control = "no-cache, must-revalidate"
+    X-Content-Type-Options = "nosniff"
+
+[[headers]]
+  for = "/version.json"
+  [headers.values]
+    Cache-Control = "no-store"
 
 [[headers]]
   for = "/service-worker.js"
   [headers.values]
     Cache-Control = "no-cache"
     Content-Type = "application/javascript; charset=utf-8"
+
+[[headers]]
+  for = "/manifest.json"
+  [headers.values]
+    Content-Type = "application/manifest+json; charset=utf-8"
